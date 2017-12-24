@@ -2,6 +2,12 @@ const config = {
   development: {
     port: 6000,
     host: 'http://localhost:7000',
+
+    db: {
+      host: 'localhost',
+      name: 'poohitan-com-dev',
+      port: 27017,
+    },
   },
 
   production: {
@@ -12,6 +18,12 @@ const config = {
       host: '46.101.99.203',
       username: 'poohitan',
       folder: '~/poohitan.com/client',
+    },
+
+    db: {
+      host: 'localhost',
+      name: 'poohitan-com',
+      port: 27017,
     },
 
     git: {

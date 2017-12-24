@@ -1,12 +1,21 @@
 const express = require('express');
 const config = require('./config').current;
+const connectToDB = require('./utils/connect-to-db');
+const routes = require('./routes');
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.sendStatus(200);
+Object.keys(routes).forEach((route) => {
+  const router = routes[route];
+
+  if (typeof router === 'function') {
+    app.use(`/${route}`, router);
+  }
 });
 
-app.listen(config.port);
+connectToDB()
+  .then(() => {
+    app.listen(config.port);
 
-console.log('Listening on port', config.port);
+    console.log('Listening on port', config.port);
+  });
