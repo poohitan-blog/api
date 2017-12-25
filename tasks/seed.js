@@ -118,8 +118,19 @@ const posts = [
   },
 ];
 
+const pages = [
+  {
+    title: 'Про',
+    path: 'about',
+    body: '<h1>Про</h1><p>Бла-бла</p>',
+  },
+];
+
 connectToDB()
-  .then(() => Promise.all(posts.map(post => models.post.create(post))))
+  .then(() => Promise.all([
+    Promise.all(posts.map(post => models.post.create(post))),
+    Promise.all(pages.map(page => models.page.create(page))),
+  ]))
   .then(() => console.log('Finished successfully'))
   .catch(error => console.error(error))
   .then(() => process.exit());
