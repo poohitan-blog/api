@@ -4,7 +4,7 @@ const config = {
     clientURL: 'http://localhost:7000',
     apiURL: 'http://localhost:3100',
 
-    allowedOrigins: ['*'],
+    corsAllowedOrigins: ['*'],
 
     db: {
       host: 'localhost',

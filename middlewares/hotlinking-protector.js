@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
     return next();
   }
 
-  const { domain, tld } = parseDomain(refererHeader);
+  const { domain, tld } = parseDomain(refererHeader) || {};
   const refererDomain = [domain, tld].join('.');
 
   if (!config.hotlinkingAllowedOrigins || config.hotlinkingAllowedOrigins.includes(refererDomain)) {

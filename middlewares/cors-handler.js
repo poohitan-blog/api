@@ -22,7 +22,7 @@ const allowedMethods = [
 
 module.exports = (req, res, next) => {
   const originHeader = req.headers.origin;
-  const { domain, tld } = originHeader ? parseDomain(originHeader) : {};
+  const { domain, tld } = originHeader ? parseDomain(originHeader) || {} : {};
   const originDomain = [domain, tld].join('.');
 
   const allowOriginHeader = config.corsAllowedOrigins.includes(originDomain)

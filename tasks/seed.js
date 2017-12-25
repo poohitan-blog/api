@@ -126,10 +126,20 @@ const pages = [
   },
 ];
 
+const trashPosts = [
+  {
+    body: '<p>Призи для переможців «Критого ровера — 2016»</p><p><img src="https://poohitan.com/images/ibbKLd4_41U.jpg"/><p>',
+  },
+  {
+    body: '<p>Яцишинаній. 2009 або 2010 рік.</p><p><img src="https://poohitan.com/images/esGGHBMzz98.jpg"/><p>',
+  },
+];
+
 connectToDB()
   .then(() => Promise.all([
     Promise.all(posts.map(post => models.post.create(post))),
     Promise.all(pages.map(page => models.page.create(page))),
+    Promise.all(trashPosts.map(trashPost => models.trashPost.create(trashPost))),
   ]))
   .then(() => console.log('Finished successfully'))
   .catch(error => console.error(error))
