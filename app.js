@@ -1,9 +1,15 @@
 const express = require('express');
+const HttpStatus = require('http-status-codes');
+
 const config = require('./config').current;
 const connectToDB = require('./utils/connect-to-db');
 const routes = require('./routes');
 
 const app = express();
+
+app.get('/', (req, res) => {
+  res.sendStatus(HttpStatus.OK);
+});
 
 Object.keys(routes).forEach((route) => {
   const router = routes[route];

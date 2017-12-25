@@ -1,23 +1,32 @@
 const config = {
   development: {
-    port: 6000,
-    host: 'http://localhost:7000',
+    port: 3100,
+    clientURL: 'http://localhost:7000',
+    apiURL: 'http://localhost:3100',
 
     db: {
       host: 'localhost',
       name: 'poohitan-com-dev',
       port: 27017,
     },
+
+    digitalOcean: {
+      spaces: {
+        name: 'poohitan-com',
+        endpoint: 'ams3.digitaloceanspaces.com',
+      },
+    },
   },
 
   production: {
     port: 3000,
-    host: 'https://new.poohitan.com',
+    clientURL: 'https://new.poohitan.com',
+    apiURL: 'https://api.poohitan.com',
 
     server: {
       host: '46.101.99.203',
       username: 'poohitan',
-      folder: '~/poohitan.com/client',
+      folder: '~/poohitan.com/api',
     },
 
     db: {
@@ -33,6 +42,13 @@ const config = {
 
     pm2: {
       appName: 'poohitan-com-api',
+    },
+
+    digitalOcean: {
+      spaces: {
+        name: 'poohitan-com',
+        endpoint: 'ams3.digitaloceanspaces.com',
+      },
     },
   },
 };
