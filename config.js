@@ -4,6 +4,8 @@ const config = {
     clientURL: 'http://localhost:7000',
     apiURL: 'http://localhost:3100',
 
+    allowedOrigins: ['*'],
+
     db: {
       host: 'localhost',
       name: 'poohitan-com-dev',
@@ -22,6 +24,10 @@ const config = {
     port: 3000,
     clientURL: 'https://new.poohitan.com',
     apiURL: 'https://api.poohitan.com',
+
+    allowedOrigins: [
+      'poohitan.com',
+    ],
 
     server: {
       host: '46.101.99.203',
