@@ -1,20 +1,18 @@
-const { URL } = require('url');
+const parseDomain = require('parse-domain');
 const request = require('request');
 const config = require('../config').current;
 
-const whiteList = [/(.+?\.)?poohitan\.com/];
-
 module.exports = (req, res, next) => {
-  const { referer } = req.headers;
+  const { refererHeader } = req.headers;
 
-  if (!referer || req.isSpider()) {
+  if (!refererHeader || req.isSpider()) {
     return next();
   }
 
-  const refererURL = new URL(referer);
-  const refererHostname = refererURL.hostname;
+  const { domain, tld } = parseDomain(refererHeader);
+  const refererDomain = [domain, tld].join('.');
 
-  if (whiteList.some(host => host.test(refererHostname))) {
+  if (!config.hotlinkingAllowedOrigins || config.hotlinkingAllowedOrigins.includes(refererDomain)) {
     return next();
   }
 

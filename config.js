@@ -25,7 +25,10 @@ const config = {
     clientURL: 'https://new.poohitan.com',
     apiURL: 'https://api.poohitan.com',
 
-    allowedOrigins: [
+    hotlinkingAllowedOrigins: [
+      'poohitan.com',
+    ],
+    corsAllowedOrigins: [
       'poohitan.com',
     ],
 

@@ -1,4 +1,4 @@
-const { URL } = require('url');
+const parseDomain = require('parse-domain');
 const config = require('../config').current;
 const HttpStatus = require('http-status-codes');
 
@@ -22,9 +22,11 @@ const allowedMethods = [
 
 module.exports = (req, res, next) => {
   const originHeader = req.headers.origin;
-  const origin = originHeader ? new URL(originHeader) : {};
-  const allowOriginHeader = (origin.hostname && config.allowedOrigins.includes(origin.hostname))
-    || config.allowedOrigins.includes('*')
+  const { domain, tld } = originHeader ? parseDomain(originHeader) : {};
+  const originDomain = [domain, tld].join('.');
+
+  const allowOriginHeader = config.corsAllowedOrigins.includes(originDomain)
+    || config.corsAllowedOrigins.includes('*')
     ? originHeader : null;
 
   res.header({
