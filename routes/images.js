@@ -1,6 +1,7 @@
 const express = require('express');
 const aws = require('aws-sdk');
 const request = require('request');
+const HttpStatus = require('http-status-codes');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const spiderDetector = require('spider-detector');
@@ -43,10 +44,27 @@ router.post('/', upload, (req, res) => {
 router.use(spiderDetector.middleware());
 router.use(hotlinkingProtector);
 
-router.get('/:filename', (req, res) => {
+router.get('/:filename', (req, res, next) => {
   const originalURL = `https://${config.digitalOcean.spaces.name}.${config.digitalOcean.spaces.endpoint}/${config.environment}/images/${req.params.filename}`;
 
-  req.pipe(request(originalURL)).pipe(res);
+  request({
+    url: originalURL,
+    encoding: null,
+  }, (error, response, body) => {
+    if (error) {
+      return next(error);
+    }
+
+    if (response.statusCode !== HttpStatus.OK) {
+      return next({ status: HttpStatus.NOT_FOUND });
+    }
+
+    res.header({
+      'Content-Disposition': 'inline',
+    });
+
+    return res.send(body);
+  });
 });
 
 router.use(errorHandler);

@@ -1,7 +1,17 @@
 const serializeError = require('serialize-error');
+const HttpStatus = require('http-status-codes');
+const config = require('../config').current;
 
 module.exports = (error, req, res, next) => { // eslint-disable-line
-  console.error(error);
+  const serializedError = serializeError(error);
+  const status = error.status || HttpStatus.INTERNAL_SERVER_ERROR;
 
-  res.json(serializeError(error));
+  serializedError.status = status;
+  serializedError.message = serializedError.message || HttpStatus.getStatusText(status);
+
+  if (config.environment !== 'development') {
+    delete serializedError.stack;
+  }
+
+  res.status(status).json(serializedError);
 };

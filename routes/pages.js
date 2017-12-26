@@ -1,4 +1,5 @@
 const express = require('express');
+const HttpStatus = require('http-status-codes');
 const models = require('../models');
 const errorHandler = require('../middlewares/error-handler');
 
@@ -18,9 +19,13 @@ router.get('/:page_path', async (req, res, next) => {
   try {
     const page = await models.page.findOne({ path: req.params.page_path });
 
-    res.json(page.serialize());
+    if (!page) {
+      return next({ status: HttpStatus.NOT_FOUND });
+    }
+
+    return res.json(page.serialize());
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

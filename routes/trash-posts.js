@@ -1,5 +1,6 @@
 const express = require('express');
 const moment = require('moment');
+const HttpStatus = require('http-status-codes');
 const models = require('../models');
 const errorHandler = require('../middlewares/error-handler');
 
@@ -7,16 +8,14 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    let filter = {};
+    const filter = {};
 
     if (req.query.createdAt) {
       const createdAt = moment(req.query.createdAt);
 
-      filter = {
-        createdAt: {
-          $gte: createdAt.clone().startOf('second'),
-          $lte: createdAt.clone().endOf('second'),
-        },
+      filter.createdAt = {
+        $gte: createdAt.clone().startOf('second'),
+        $lte: createdAt.clone().endOf('second'),
       };
     }
 
@@ -32,9 +31,13 @@ router.get('/:trash_post_id', async (req, res, next) => {
   try {
     const trashPost = await models.trashPost.findOne({ _id: req.params.trash_post_id });
 
-    res.json(trashPost.serialize());
+    if (!trashPost) {
+      return next({ status: HttpStatus.NOT_FOUND });
+    }
+
+    return res.json(trashPost.serialize());
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
