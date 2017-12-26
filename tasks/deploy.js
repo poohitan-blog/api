@@ -13,7 +13,8 @@ if (!env) {
 const config = require('../config')[env];
 
 const { host, username, folder } = config.server;
-const { repo, branch } = config.git;
+const { repo } = config.git;
+const branch = argv.branch || argv.b || config.git.branch;
 const { appName } = config.pm2;
 
 const privateKey = fs.readFileSync('/Users/poohitan/.ssh/id_rsa');
