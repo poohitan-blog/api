@@ -3,10 +3,13 @@ const aws = require('aws-sdk');
 const request = require('request');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
+const spiderDetector = require('spider-detector');
+
 const config = require('../config').current;
+
 const sanitizeFilename = require('../utils/sanitize-filename');
 const hotlinkingProtector = require('../middlewares/hotlinking-protector');
-const spiderDetector = require('spider-detector');
+const errorHandler = require('../middlewares/error-handler');
 
 const router = express.Router();
 const spacesEndpoint = new aws.Endpoint(config.digitalOcean.spaces.endpoint);
@@ -45,5 +48,7 @@ router.get('/:filename', (req, res) => {
 
   req.pipe(request(originalURL)).pipe(res);
 });
+
+router.use(errorHandler);
 
 module.exports = router;
