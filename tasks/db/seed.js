@@ -1,6 +1,6 @@
 const moment = require('moment');
-const models = require('../models');
-const connectToDB = require('../utils/connect-to-db');
+const models = require('../../models');
+const connectToDB = require('../../utils/connect-to-db');
 
 const posts = [
   {
@@ -16,6 +16,7 @@ const posts = [
   <li>специфічна комбінація шарів — після кидка, бажано, аби частина торту залишилась в руці і її можна було з'їсти іншим друзям</li>
 </ol>`,
     publishedAt: new Date(),
+    tags: ['печенько', 'зроби сам'],
   },
   {
     path: 'ukulele-piezo-pickup',
@@ -115,6 +116,7 @@ const posts = [
 <p><iframe src="https://www.youtube.com/embed/pK83FsUccEQ" allowfullscreen="" width="550" height="309" frameborder="0"></iframe></p>`,
     publishedAt: moment().startOf('day').subtract(15516, 'hours').subtract(23, 'minutes')
       .toDate(),
+    tags: ['музика', 'зроби сам'],
   },
 ];
 
@@ -141,6 +143,6 @@ connectToDB()
     Promise.all(pages.map(page => models.page.create(page))),
     Promise.all(trashPosts.map(trashPost => models.trashPost.create(trashPost))),
   ]))
-  .then(() => console.log('Finished successfully'))
+  .then(() => console.log('Successfully seeded the database.'))
   .catch(error => console.error(error))
   .then(() => process.exit());
