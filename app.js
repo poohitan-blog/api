@@ -2,6 +2,7 @@ const express = require('express');
 const HttpStatus = require('http-status-codes');
 
 const corsHandler = require('./middlewares/cors-handler');
+const queryParser = require('./middlewares/query-parser');
 const config = require('./config').current;
 const connectToDB = require('./utils/connect-to-db');
 const routes = require('./routes');
@@ -9,6 +10,8 @@ const routes = require('./routes');
 const app = express();
 
 app.use(corsHandler);
+
+app.use(queryParser);
 
 app.get('/', (req, res) => {
   res.sendStatus(HttpStatus.OK);
