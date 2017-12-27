@@ -7,9 +7,15 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const pages = await models.page.find();
+    const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
 
-    res.json(pages.map(page => page.serialize()));
+    const { docs, pages } = await models.page.paginate({}, {
+      page,
+      limit,
+      sort: '-createdAt',
+    });
+
+    res.json({ docs: docs.map(doc => doc.serialize()), meta: { page, pages } });
   } catch (error) {
     next(error);
   }

@@ -13,9 +13,15 @@ router.get('/', async (req, res, next) => {
       filter.tags = req.query.tag;
     }
 
-    const posts = await models.post.find(filter);
+    const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
 
-    res.json(posts.map(post => post.serialize()));
+    const { docs, pages } = await models.post.paginate(filter, {
+      page,
+      limit,
+      sort: '-publishedAt',
+    });
+
+    res.json({ docs: docs.map(doc => doc.serialize()), meta: { page, pages } });
   } catch (error) {
     next(error);
   }

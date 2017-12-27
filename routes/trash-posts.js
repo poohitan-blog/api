@@ -19,9 +19,15 @@ router.get('/', async (req, res, next) => {
       };
     }
 
-    const trashPosts = await models.trashPost.find(filter);
+    const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
 
-    res.json(trashPosts.map(trashPost => trashPost.serialize()));
+    const { docs, pages } = await models.trashPost.paginate(filter, {
+      page,
+      limit,
+      sort: '-publishedAt',
+    });
+
+    res.json({ docs: docs.map(doc => doc.serialize()), meta: { page, pages } });
   } catch (error) {
     next(error);
   }
