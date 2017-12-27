@@ -118,6 +118,13 @@ const posts = [
       .toDate(),
     tags: ['музика', 'зроби сам'],
   },
+  {
+    path: 'test-post',
+    title: 'Test post',
+    body: '<p>This is a test post</p>',
+    publishedAt: moment().startOf('week').subtract(145, 'minutes').toDate(),
+    tags: ['туфта', 'ше багато', 'різних', 'тегів', 'бла-бла-бла', 'qwerty'],
+  },
 ];
 
 const pages = [
