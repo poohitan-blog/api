@@ -1,8 +1,11 @@
 const serializeError = require('serialize-error');
 const HttpStatus = require('http-status-codes');
 const config = require('../config').current;
+const Logger = require('../services/logger');
 
 module.exports = (error, req, res, next) => { // eslint-disable-line
+  Logger.error(error);
+
   const serializedError = serializeError(error);
   const status = error.status || HttpStatus.INTERNAL_SERVER_ERROR;
 

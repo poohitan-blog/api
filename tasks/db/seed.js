@@ -1,6 +1,7 @@
 const moment = require('moment');
 const models = require('../../models');
 const connectToDB = require('../../utils/connect-to-db');
+const Logger = require('../../services/logger');
 
 const posts = [
   {
@@ -121,9 +122,16 @@ const posts = [
   {
     path: 'test-post',
     title: 'Test post',
-    body: '<p>This is a test post</p>',
+    body: '<p>This is a test post печенько</p>',
     publishedAt: moment().startOf('week').subtract(145, 'minutes').toDate(),
     tags: ['туфта', 'ше багато', 'різних', 'тегів', 'бла-бла-бла', 'qwerty'],
+  },
+  {
+    path: 'cookies-post',
+    title: 'Печенько бла бла печенько',
+    body: '<p>This is a test post</p>',
+    publishedAt: moment().startOf('week').subtract(145, 'minutes').toDate(),
+    tags: ['туфта', 'ше багато', 'укулеле', 'тегів', 'бла-бла-бла'],
   },
 ];
 
@@ -131,13 +139,18 @@ const pages = [
   {
     title: 'Про',
     path: 'about',
+    body: '<h1>Про</h1><p>Бла-бла, печенько</p>',
+  },
+  {
+    title: 'Печенько',
+    path: 'cookies',
     body: '<h1>Про</h1><p>Бла-бла</p>',
   },
 ];
 
 const trashPosts = [
   {
-    body: '<p>Призи для переможців «Критого ровера — 2016»</p><p><img src="https://poohitan.com/images/ibbKLd4_41U.jpg"/><p>',
+    body: '<p>Печенько. Призи для переможців «Критого ровера — 2016»</p><p><img src="https://poohitan.com/images/ibbKLd4_41U.jpg"/><p>',
   },
   {
     body: '<p>Яцишинаній. 2009 або 2010 рік.</p><p><img src="https://poohitan.com/images/esGGHBMzz98.jpg"/><p>',
@@ -150,6 +163,7 @@ connectToDB()
     Promise.all(pages.map(page => models.page.create(page))),
     Promise.all(trashPosts.map(trashPost => models.trashPost.create(trashPost))),
   ]))
-  .then(() => console.log('Successfully seeded the database.'))
-  .catch(error => console.error(error))
+  .then(() => Promise.all(Object.keys(models).map(modelName => models[modelName].ensureIndexes())))
+  .then(() => Logger.success('Successfully seeded the database.'))
+  .catch(error => Logger.error(error))
   .then(() => process.exit());

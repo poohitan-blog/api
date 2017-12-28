@@ -36,5 +36,5 @@ connectToDB()
 
     mongoose.set('debug', Logger.query);
 
-    console.log('Listening on port', config.port);
+    Logger.log('Listening on port', config.port);
   });

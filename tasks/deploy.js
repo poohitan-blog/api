@@ -1,11 +1,12 @@
 const { argv } = require('yargs'); // eslint-disable-line
 const execSSH = require('../utils/exec-ssh');
 const fs = require('fs');
+const Logger = require('../services/logger');
 
 const env = argv.e || argv.env || argv.environment;
 
 if (!env) {
-  console.error('Error: You must pass the environment as an argument');
+  Logger.error('Error: You must pass the environment as an argument');
 
   process.exit(1);
 }
@@ -35,6 +36,6 @@ exec(`git clone -b ${branch} ${repo} ${folder}/new`)
   .then(() => exec(`mv ${folder}/new ${folder}/current`))
   .then(() => exec(`pm2 stop ${appName}`))
   .then(() => exec(`${envVariablesString} && pm2 start ${folder}/current/app.js --name ${appName} --update-env`))
-  .then(() => console.log('Deployed successfully.'))
-  .catch(error => console.error(error))
+  .then(() => Logger.success('Deployed successfully.'))
+  .catch(error => Logger.error(error))
   .then(() => process.exit());

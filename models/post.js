@@ -5,6 +5,17 @@ module.exports = model('Post', {
   body: String,
   path: { type: String, index: true },
   tags: [String],
-  draft: Boolean,
+  private: { type: Boolean, default: false },
   publishedAt: Date,
+}, {
+  indexes: [
+    [
+      { title: 'text', body: 'text', tags: 'text' },
+      {
+        weights: {
+          title: 10, body: 5,
+        },
+      },
+    ],
+  ],
 });

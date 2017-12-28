@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 const connectToDB = require('../../utils/connect-to-db');
+const Logger = require('../../services/logger');
 
 connectToDB()
   .then(() => {
     mongoose.connection.db.dropDatabase(() => {
-      console.log('Successfully dropped the database.');
+      Logger.success('Successfully dropped the database.');
 
       mongoose.disconnect();
       process.exit();
     });
   })
-  .catch(error => console.error(error));
+  .catch(error => Logger.error(error));

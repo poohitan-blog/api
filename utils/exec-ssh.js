@@ -1,9 +1,10 @@
 const SSH = require('ssh2').Client; // eslint-disable-line
+const Logger = require('../services/logger');
 
 module.exports = server => command => new Promise((resolve, reject) => {
   const client = new SSH();
 
-  console.log(`Started: ${command}`);
+  Logger.log(`Started: ${command}`);
 
   client
     .on('ready', () => {
@@ -16,13 +17,13 @@ module.exports = server => command => new Promise((resolve, reject) => {
 
         return stream
           .on('close', () => {
-            console.log(`Finished: ${command}`);
+            Logger.success(`Finished: ${command}`);
 
             client.end();
             resolve();
           })
-          .on('data', data => console.log(data.toString()))
-          .stderr.on('data', data => console.error(data.toString()));
+          .on('data', data => Logger.log(data.toString()))
+          .stderr.on('data', data => Logger.log(data.toString()));
       });
     })
     .on('error', error => reject(error))

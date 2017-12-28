@@ -4,7 +4,7 @@ const mongoosePaginate = require('mongoose-paginate');
 const uuid = require('uuid');
 const serialize = require('./serialize');
 
-module.exports = (modelName, fields) => {
+module.exports = (modelName, fields, { indexes = [] } = {}) => {
   const schema = new mongoose.Schema(Object.assign({
     _id: {
       type: String,
@@ -17,6 +17,8 @@ module.exports = (modelName, fields) => {
   schema.plugin(mongooseDelete, { deletedAt: true });
   schema.plugin(mongoosePaginate);
   schema.method('serialize', serialize);
+
+  indexes.forEach(index => schema.index(...index));
 
   return mongoose.model(modelName, schema);
 };
