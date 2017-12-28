@@ -15,7 +15,10 @@ router.get('/', async (req, res, next) => {
       sort: '-createdAt',
     });
 
-    res.json({ docs: docs.map(doc => doc.serialize()), meta: { page, pages } });
+    res.json({
+      docs: docs.map(doc => doc.serialize()),
+      meta: { currentPage: page, totalPages: pages },
+    });
   } catch (error) {
     next(error);
   }
