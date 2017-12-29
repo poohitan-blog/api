@@ -4,6 +4,13 @@ module.exports = model('TrashPost', {
   body: String,
 }, {
   indexes: [
-    [{ body: 'text' }],
+    [
+      { body: 'text' },
+      {
+        weights: {
+          body: 5,
+        },
+      },
+    ],
   ],
 });
