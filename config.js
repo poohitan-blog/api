@@ -3,6 +3,7 @@ const config = {
     port: 3100,
     clientURL: 'http://localhost:7000',
     apiURL: 'http://localhost:3100',
+    cookiesDomain: 'localhost',
 
     corsAllowedOrigins: ['*'],
 
@@ -26,6 +27,7 @@ const config = {
     port: 3000,
     clientURL: 'https://new.poohitan.com',
     apiURL: 'https://api.poohitan.com',
+    cookiesDomain: '.poohitan.com',
 
     hotlinkingAllowedOrigins: [
       'poohitan.com',
