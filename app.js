@@ -44,4 +44,5 @@ connectToDB()
     mongoose.set('debug', Logger.query);
 
     Logger.log('Listening on port', config.port);
-  });
+  })
+  .catch(error => Logger.error(error));
