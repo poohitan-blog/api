@@ -1,5 +1,7 @@
 const model = require('../utils/model');
 
+const CUT_TAG = '<cut>';
+
 module.exports = model('Post', {
   title: String,
   body: String,
@@ -18,4 +20,12 @@ module.exports = model('Post', {
       },
     ],
   ],
+  methods: {
+    getCutBody() {
+      const { body } = this;
+      const cutPosition = body.indexOf(CUT_TAG);
+
+      return cutPosition > 0 ? body.slice(0, cutPosition) : body;
+    },
+  },
 });

@@ -35,6 +35,7 @@
     "parse-domain": "^2.0.0",
     "request": "^2.83.0",
     "require-dir": "^0.3.2",
+    "rss": "^1.2.2",
     "sanitize-filename": "^1.6.1",
     "serialize-error": "^2.1.0",
     "spider-detector": "^1.0.18",
