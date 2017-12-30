@@ -24,7 +24,7 @@ module.exports = async (req, res, next) => {
   } catch (error) {
     return res
       .status(HttpStatus.UNAUTHORIZED)
-      .clearCookie('token')
+      .clearCookie('token', { domain: config.cookiesDomain })
       .json({ status: HttpStatus.UNAUTHORIZED });
   }
 };

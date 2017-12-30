@@ -27,7 +27,7 @@ router.post('/', async (req, res, next) => {
     const expires = moment().add(1, 'weeks').toDate();
 
     return res
-      .cookie('token', token, { expires })
+      .cookie('token', token, { expires, domain: config.cookiesDomain })
       .json({
         token,
         id: user._id,
