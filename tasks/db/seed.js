@@ -130,8 +130,16 @@ const posts = [
     path: 'cookies-post',
     title: 'Печенько бла бла печенько',
     body: '<p>This is a test post</p>',
-    publishedAt: moment().startOf('week').subtract(145, 'minutes').toDate(),
+    publishedAt: moment().startOf('week').subtract(2078, 'minutes').toDate(),
     tags: ['туфта', 'ше багато', 'укулеле', 'тегів', 'бла-бла-бла'],
+  },
+  {
+    path: 'private-post',
+    title: 'Прихований запис',
+    body: '<p>Цей запис має бути видимим тільки адміністратору</p>',
+    publishedAt: moment().startOf('week').subtract(11906, 'minutes').toDate(),
+    tags: ['приватність', 'security'],
+    private: true,
   },
 ];
 
@@ -159,11 +167,21 @@ const trashPosts = [
   },
 ];
 
+const users = [
+  {
+    login: 'poohitan',
+    email: 'poohitan@gmail.com',
+    password: '12345678',
+    role: 'admin',
+  },
+];
+
 connectToDB()
   .then(() => Promise.all([
     Promise.all(posts.map(post => models.post.create(post))),
     Promise.all(pages.map(page => models.page.create(page))),
     Promise.all(trashPosts.map(trashPost => models.trashPost.create(trashPost))),
+    Promise.all(users.map(user => models.user.create(user))),
   ]))
   .then(() => Promise.all(Object.keys(models).map(modelName => models[modelName].ensureIndexes())))
   .then(() => Logger.success('Successfully seeded the database.'))

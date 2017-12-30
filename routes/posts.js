@@ -13,8 +13,11 @@ router.get('/', async (req, res, next) => {
       filter.tags = req.query.tag;
     }
 
-    const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
+    if (!req.isAuthenticated) {
+      filter.private = false;
+    }
 
+    const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
     const { docs, pages } = await models.post.paginate(filter, {
       page,
       limit,
@@ -36,6 +39,10 @@ router.get('/:post_path', async (req, res, next) => {
 
     if (!post) {
       return next({ status: HttpStatus.NOT_FOUND });
+    }
+
+    if (post.private && !req.isAuthenticated) {
+      return next({ status: HttpStatus.UNAUTHORIZED });
     }
 
     return res.json(post.serialize());

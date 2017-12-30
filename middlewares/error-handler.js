@@ -4,10 +4,10 @@ const config = require('../config').current;
 const Logger = require('../services/logger');
 
 module.exports = (error, req, res, next) => { // eslint-disable-line
-  Logger.error(error);
-
   const serializedError = serializeError(error);
   const status = error.status || HttpStatus.INTERNAL_SERVER_ERROR;
+
+  Logger.error(serializedError);
 
   serializedError.status = status;
   serializedError.message = serializedError.message || HttpStatus.getStatusText(status);

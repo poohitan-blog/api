@@ -18,6 +18,8 @@ const config = {
         endpoint: 'ams3.digitaloceanspaces.com',
       },
     },
+
+    jwtSecret: 'supersecret',
   },
 
   production: {
@@ -46,7 +48,7 @@ const config = {
 
     git: {
       repo: 'git@github.com:poohitan-blog/api.git',
-      branch: 'production',
+      branch: 'stable',
     },
 
     pm2: {
@@ -59,6 +61,8 @@ const config = {
         endpoint: 'ams3.digitaloceanspaces.com',
       },
     },
+
+    jwtSecret: process.env.POOHITAN_COM_JWT_SECRET,
   },
 };
 

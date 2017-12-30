@@ -28,9 +28,15 @@ router.get('/', (req, res, next) => {
     return;
   }
 
+  const filter = {};
+
+  if (!req.isAuthenticated) {
+    filter.private = false;
+  }
+
   Promise.all([
-    searchText(models.post, query, { private: false }),
-    searchText(models.page, query, { private: false }),
+    searchText(models.post, query, filter),
+    searchText(models.page, query, filter),
     searchText(models.trashPost, query),
   ])
     .then(([posts, pages, trashPosts]) => {

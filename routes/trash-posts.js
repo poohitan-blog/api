@@ -20,7 +20,6 @@ router.get('/', async (req, res, next) => {
     }
 
     const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
-
     const { docs, pages } = await models.trashPost.paginate(filter, {
       page,
       limit,
