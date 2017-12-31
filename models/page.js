@@ -1,4 +1,5 @@
 const model = require('../utils/model');
+const slugifyText = require('../helpers/slugify-text');
 
 module.exports = model('Page', {
   title: String,
@@ -16,4 +17,13 @@ module.exports = model('Page', {
       },
     ],
   ],
+  middlewares: {
+    save: {
+      pre(next) {
+        this.path = this.path || slugifyText(this.title);
+
+        next();
+      },
+    },
+  },
 });
