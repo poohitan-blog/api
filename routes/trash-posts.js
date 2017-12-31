@@ -23,7 +23,7 @@ router.get('/', async (req, res, next) => {
     const { docs, pages } = await models.trashPost.paginate(filter, {
       page,
       limit,
-      sort: '-publishedAt',
+      sort: '-createdAt',
     });
 
     res.json({
@@ -46,6 +46,38 @@ router.get('/:trash_post_id', async (req, res, next) => {
     return res.json(trashPost.serialize());
   } catch (error) {
     return next(error);
+  }
+});
+
+router.post('/', async (req, res, next) => {
+  try {
+    const trashPost = await models.trashPost.create(req.body);
+
+    res.json(trashPost.serialize());
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch('/:trash_post_id', async (req, res, next) => {
+  try {
+    const trashPost = await models.trashPost.findOneAndUpdate({
+      _id: req.params.trash_post_id,
+    }, req.body, { new: true });
+
+    res.json(trashPost.serialize());
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:trash_post_id', async (req, res, next) => {
+  try {
+    await models.trashPost.delete({ _id: req.params.trash_post_id });
+
+    res.json({});
+  } catch (error) {
+    next(error);
   }
 });
 

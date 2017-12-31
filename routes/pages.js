@@ -47,6 +47,36 @@ router.get('/:page_path', async (req, res, next) => {
   }
 });
 
+router.post('/', async (req, res, next) => {
+  try {
+    const page = await models.page.create(req.body);
+
+    res.json(page.serialize());
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch('/:page_path', async (req, res, next) => {
+  try {
+    const page = await models.page.findOneAndUpdate({ path: req.params.page_path }, req.body, { new: true });
+
+    res.json(page.serialize());
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:page_path', async (req, res, next) => {
+  try {
+    await models.page.delete({ path: req.params.page_path });
+
+    res.json({});
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.use(errorHandler);
 
 module.exports = router;

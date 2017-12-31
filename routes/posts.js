@@ -51,6 +51,36 @@ router.get('/:post_path', async (req, res, next) => {
   }
 });
 
+router.post('/', async (req, res, next) => {
+  try {
+    const post = await models.post.create(req.body);
+
+    res.json(post.serialize());
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch('/:post_path', async (req, res, next) => {
+  try {
+    const post = await models.post.findOneAndUpdate({ path: req.params.post_path }, req.body, { new: true });
+
+    res.json(post.serialize());
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:post_path', async (req, res, next) => {
+  try {
+    await models.post.delete({ path: req.params.post_path });
+
+    res.json({});
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.use(errorHandler);
 
 module.exports = router;
