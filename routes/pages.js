@@ -1,6 +1,7 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
 const models = require('../models');
+const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
 
 const router = express.Router();
@@ -47,7 +48,7 @@ router.get('/:page_path', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', routeProtector, async (req, res, next) => {
   try {
     const page = await models.page.create(req.body);
 
@@ -57,7 +58,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.patch('/:page_path', async (req, res, next) => {
+router.patch('/:page_path', routeProtector, async (req, res, next) => {
   try {
     const page = await models.page.findOneAndUpdate({ path: req.params.page_path }, req.body, { new: true });
 
@@ -67,7 +68,7 @@ router.patch('/:page_path', async (req, res, next) => {
   }
 });
 
-router.delete('/:page_path', async (req, res, next) => {
+router.delete('/:page_path', routeProtector, async (req, res, next) => {
   try {
     await models.page.delete({ path: req.params.page_path });
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
 const models = require('../models');
+const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
 
 const router = express.Router();
@@ -51,7 +52,7 @@ router.get('/:post_path', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', routeProtector, async (req, res, next) => {
   try {
     const post = await models.post.create(req.body);
 
@@ -61,7 +62,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.patch('/:post_path', async (req, res, next) => {
+router.patch('/:post_path', routeProtector, async (req, res, next) => {
   try {
     const post = await models.post.findOneAndUpdate({ path: req.params.post_path }, req.body, { new: true });
 
@@ -71,7 +72,7 @@ router.patch('/:post_path', async (req, res, next) => {
   }
 });
 
-router.delete('/:post_path', async (req, res, next) => {
+router.delete('/:post_path', routeProtector, async (req, res, next) => {
   try {
     await models.post.delete({ path: req.params.post_path });
 
