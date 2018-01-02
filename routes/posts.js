@@ -42,10 +42,6 @@ router.get('/:post_path', async (req, res, next) => {
       return next({ status: HttpStatus.NOT_FOUND });
     }
 
-    if (post.private && !req.isAuthenticated) {
-      return next({ status: HttpStatus.UNAUTHORIZED });
-    }
-
     return res.json(post.serialize());
   } catch (error) {
     return next(error);

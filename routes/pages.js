@@ -38,10 +38,6 @@ router.get('/:page_path', async (req, res, next) => {
       return next({ status: HttpStatus.NOT_FOUND });
     }
 
-    if (page.private && !req.isAuthenticated) {
-      return next({ status: HttpStatus.UNAUTHORIZED });
-    }
-
     return res.json(page.serialize());
   } catch (error) {
     return next(error);
