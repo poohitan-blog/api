@@ -5,6 +5,7 @@ const HttpStatus = require('http-status-codes');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const spiderDetector = require('spider-detector');
+const mime = require('mime-types');
 
 const config = require('../config').current;
 
@@ -61,6 +62,7 @@ router.get('/:filename', (req, res, next) => {
 
     res.header({
       'Content-Disposition': 'inline',
+      'Content-Type': mime.lookup(req.params.filename),
     });
 
     return res.send(body);
