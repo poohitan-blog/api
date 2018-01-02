@@ -20,7 +20,7 @@ module.exports = model('Page', {
   middlewares: {
     save: {
       pre(next) {
-        this.path = this.path || slugifyText(this.title);
+        this.path = this.path || (this.title ? slugifyText(this.title) : this._id);
 
         next();
       },
