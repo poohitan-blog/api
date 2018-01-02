@@ -11,6 +11,7 @@ const config = require('../config').current;
 
 const sanitizeFilename = require('../utils/sanitize-filename');
 const hotlinkingProtector = require('../middlewares/hotlinking-protector');
+const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
 
 const router = express.Router();
@@ -34,7 +35,7 @@ const upload = multer({
   }),
 }).array('images');
 
-router.post('/', upload, (req, res) => {
+router.post('/', routeProtector, upload, (req, res) => {
   res.json(req.files.map((file) => {
     const keyWithoutEnvironment = file.key.replace(`${config.environment}/`, '');
 
