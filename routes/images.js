@@ -33,9 +33,9 @@ const upload = multer({
       callback(null, fileName);
     },
   }),
-}).array('images');
+}).any('images');
 
-router.post('/', routeProtector, upload, (req, res) => {
+router.post('/', upload, (req, res) => {
   res.json(req.files.map((file) => {
     const keyWithoutEnvironment = file.key.replace(`${config.environment}/`, '');
 

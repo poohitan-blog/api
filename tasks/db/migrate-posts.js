@@ -4,8 +4,9 @@ const connectToDB = require('../../utils/connect-to-db');
 const Logger = require('../../services/logger');
 const slugifyText = require('../../helpers/slugify-text');
 const models = require('../../models');
-
-const readDir = require('../../utils/read-dir');
+const readDir = require('../../utils/migration/read-dir');
+const cleanHtml = require('../../utils/migration/clean-html');
+const reuploadImages = require('../../utils/migration/reupload-images-in-html');
 
 const { postsDir, tagsDir } = argv;
 
@@ -15,22 +16,20 @@ const regexes = {
   body: /\$post\['text'\]='((?:.|\s)*?)';/,
 };
 
-function preparePostBody(html) {
-  return html.replace(/<br><br>/g, '</p><p>').replace(/<br>/g, '');
-}
+async function makePostObject(filename, postFileContent, tagFiles) {
+  Logger.log('Processing post', filename);
 
-function makePostObject(filename, postFileContent, tagFiles) {
   const id = postFileContent.match(regexes.id)[1];
   const title = postFileContent.match(regexes.title)[1];
   const path = slugifyText(title); // eslint-disable-line
-  const body = postFileContent.match(regexes.body)[1];
+  const body = await reuploadImages(postFileContent.match(regexes.body)[1]);
   const publishedAt = moment.unix(filename);
   const tagFile = tagFiles.find(file => file.name === id);
   const tags = tagFile ? tagFile.content.split(',').map(tag => tag.trim()) : [];
 
   return {
     title,
-    body: preparePostBody(body),
+    body: cleanHtml(body),
     path,
     tags,
     publishedAt,
@@ -42,12 +41,13 @@ connectToDB()
     readDir(postsDir),
     readDir(tagsDir),
   ]))
-  .then(([postFiles, tagFiles]) => {
-    const objects = postFiles.map(({ name, content }) => makePostObject(name, content, tagFiles));
+  .then(([postFiles, tagFiles]) => postFiles.reduce((promiseChain, file) => promiseChain.then(() => {
+    const { name, content } = file;
 
-    return objects;
-  })
-  .then(posts => Promise.all(posts.map(post => models.post.create(post))))
+    return makePostObject(name, content, tagFiles)
+      .then(post => models.post.create(post))
+      .catch(() => Logger.error('Failed to migrate', name, 'post. You should migrate it manually.'));
+  }), Promise.resolve()))
   .then(() => Logger.success('Successfully migrated posts'))
   .catch(error => Logger.error(error))
   .then(() => process.exit());

@@ -4,34 +4,35 @@ const Logger = require('../../services/logger');
 const slugifyText = require('../../helpers/slugify-text');
 const models = require('../../models');
 
-const readDir = require('../../utils/read-dir');
+const readDir = require('../../utils/migration/read-dir');
+const cleanHtml = require('../../utils/migration/clean-html');
+const reuploadImages = require('../../utils/migration/reupload-images-in-html');
 
 const { pagesDir } = argv;
 
-function preparePageBody(html) {
-  return html.replace(/<br><br>/g, '</p><p>').replace(/<br>/g, '');
-}
+async function makePageObject(filename, fileContent) {
+  Logger.log('Processing page', filename);
 
-function makePageObject(filename, fileContent) {
   const title = filename;
   const path = slugifyText(title); // eslint-disable-line
-  const body = fileContent;
+  const body = await reuploadImages(fileContent);
 
   return {
     title,
-    body: preparePageBody(body),
+    body: cleanHtml(body),
     path,
   };
 }
 
 connectToDB()
   .then(() => readDir(pagesDir))
-  .then((pageFiles) => {
-    const objects = pageFiles.map(({ name, content }) => makePageObject(name, content));
+  .then(pageFiles => pageFiles.reduce((promiseChain, file) => promiseChain.then(() => {
+    const { name, content } = file;
 
-    return objects;
-  })
-  .then(pages => Promise.all(pages.map(page => models.page.create(page))))
+    return makePageObject(name, content)
+      .then(page => models.page.create(page))
+      .catch(() => Logger.error('Failed to migrate', name, 'page. You should migrate it manually.'));
+  }), Promise.resolve()))
   .then(() => Logger.success('Successfully migrated pages'))
   .catch(error => Logger.error(error))
   .then(() => process.exit());
