@@ -31,9 +31,11 @@ const config = {
 
     hotlinkingAllowedOrigins: [
       'poohitan.com',
+      'new.poohitan.com',
     ],
     corsAllowedOrigins: [
       'poohitan.com',
+      'new.poohitan.com',
     ],
 
     server: {
