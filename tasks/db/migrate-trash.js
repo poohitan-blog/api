@@ -16,8 +16,6 @@ function makePostObject(filename, fileContent) {
   const createdAt = moment(filename, 'YYYYMMDD_HHmmss').toDate();
   const body = fileContent;
 
-  console.log(createdAt);
-
   return {
     body: preparePostBody(body),
     createdAt,
