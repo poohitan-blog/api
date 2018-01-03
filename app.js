@@ -1,5 +1,4 @@
 const express = require('express');
-const HttpStatus = require('http-status-codes');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -24,7 +23,7 @@ app.use(corsHandler);
 app.use(authParser);
 
 app.get('/', (req, res) => {
-  res.sendStatus(HttpStatus.OK);
+  res.send('Ну привіт.');
 });
 
 Object.keys(routes).forEach((route) => {
