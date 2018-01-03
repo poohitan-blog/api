@@ -3,7 +3,7 @@ const Logger = require('../../services/logger');
 const config = require('../../config').current;
 
 function getImagesFromHTML(html) {
-  const regex = /<img(?:.+?)src="(https?:\/\/.+?)".*\/?>/gi;
+  const regex = /<img(?:.+?)src="(https?:\/\/.+?)".*?\/?>/gi;
   const images = [];
   let match = regex.exec(html);
 
@@ -26,7 +26,6 @@ function uploadImage(stream) {
       headers: {
         Connection: 'keep-alive',
       },
-      timeout: 10000,
     }, (error, response, body) => {
       if (error) {
         return reject(error);
@@ -44,7 +43,11 @@ function uploadImage(stream) {
 function downloadImage(link) {
   Logger.log('Downloading', link);
 
-  return request(link);
+  return request({
+    url: link,
+    encoding: null,
+    timeout: 10000,
+  });
 }
 
 module.exports = (html) => {
