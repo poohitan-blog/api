@@ -5,7 +5,7 @@ const Logger = require('../../services/logger');
 const models = require('../../models');
 const readDir = require('../../utils/migration/read-dir');
 const cleanHtml = require('../../utils/migration/clean-html');
-const reuploadImages = require('../../utils/migration/reupload-images-in-html');
+const reuploadImages = require('../../utils/migration/migrate-images');
 
 const { trashDir } = argv;
 
