@@ -1,0 +1,15 @@
+<?php
+$post['id']='13';
+$post['title']='Барабанне';
+$post['text']='Максим Марцинкевич, він же Тесак, вийшов з тюрми, зав’язав із скінхедством, вивчив англійську, і тепер знімає круті барабанні туторіали, ось :)<br><br><iframe src="https://www.youtube.com/embed/wXkKAqyOGZQ" allowfullscreen="" frameborder="0" height="309" width="550"></iframe><br><br>Канал <a target="" title="" href="http://www.youtube.com/user/SimplySnare/videos">SimplySnare</a>, раджу.<br>';
+$post['hidden']='';
+$post['subs']='';
+$post['holdtime']='';
+$post['dietime']='';
+$post['close']='';
+$post['nocomm']='';
+$post['commhide']='';
+$post['attach']='';
+$post['commpriv']='';
+$post['nobr']='';
+?>

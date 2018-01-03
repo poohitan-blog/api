@@ -1,0 +1,15 @@
+<?php
+$post['id']='23';
+$post['title']='Барабанне-2';
+$post['text']='Колись я <a target="" title="" href="https://poohitan.com/p/13">радив</a> барабанні уроки з каналу <a target="" title="" href="http://www.youtube.com/user/SimplySnare/videos">SimplySnare</a> на ютубі. Тепер або я виріс в барабанах, або цей дядько скотився, але він мені здається повною фігнею :)<br><br>Зате можу порадити два інші канали з уроками. Цього разу російською, а не англійською.<br><br>Перший чувак (канал <a target="" title="" href="https://www.youtube.com/user/Shelledband/videos">MusicWorker</a>, там не тільки барабанні уроки):<br><br><iframe src="https://www.youtube.com/embed/Z7QF9YNMLRg" allowfullscreen="" frameborder="0" height="309" width="550"></iframe><br><br><br>Його уроки довгі, ґрунтовні і детальні. Починає від найпростіших азів, розказує про техніки ударів, про хвати, і розповіді його жахливо детальні і довгі. Але все розбавлено гумором, тому дивитись не нудно. Я поки шо подивився лише кілька відео, але сподобалось настільки, шо можу радити. З цим чуваком справді можна чогось навчитись. <br><br>Всі його уроки в цьому плейлисті: <a target="" title="" href="https://www.youtube.com/watch?v=Z7QF9YNMLRg&amp;list=PLB28F9E66D5AEDB2E&amp;index=4">https://www.youtube.com/watch?v=Z7QF9YNMLRg&amp;list=PLB28F9E66D5AEDB2E&amp;index=4</a><br><br>Другий чувак (канал <a target="" title="" href="https://www.youtube.com/user/TheEbashilovo/videos">TheEbashilovo</a>):<br><br><iframe src="https://www.youtube.com/embed/gHC_ed4vg6A" allowfullscreen="" frameborder="0" height="309" width="550"></iframe><br><br>Тут все набагато менш детально, ніж в попередніх уроках, крім того десь 60% відео це не барабанні уроки, а приколи про піаністів. Багато матюків і тд. Але дивитись весело і ці відео теж чогось вчать.<br><br>Решта відео тут <a target="" title="" href="https://www.youtube.com/user/TheEbashilovo/videos">https://www.youtube.com/user/TheEbashilovo/videos</a><br>';
+$post['hidden']='';
+$post['subs']='';
+$post['holdtime']='';
+$post['dietime']='';
+$post['close']='';
+$post['nocomm']='';
+$post['commhide']='';
+$post['attach']='';
+$post['commpriv']='';
+$post['nobr']='';
+?>
