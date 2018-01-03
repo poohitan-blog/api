@@ -3,7 +3,7 @@ const Logger = require('../../services/logger');
 const config = require('../../config').current;
 
 function getImagesFromHTML(html) {
-  const regex = /<img(?:.+?)src="(https?:\/\/.+?)".*?\/?>/gi;
+  const regex = /<img(?:[^<>]+?)src="(https?:\/\/[^"]+?)"[^<>]*?\/?>/gi;
   const images = [];
   let match = regex.exec(html);
 
@@ -65,6 +65,6 @@ module.exports = (html) => {
       })
       .catch(() => Logger.error(`Failed to reupload ${link}`)),
     Promise.resolve(),
-    )
+  )
     .then(() => htmlCopy);
 };

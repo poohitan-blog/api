@@ -6,7 +6,7 @@ const slugifyText = require('../../helpers/slugify-text');
 const models = require('../../models');
 const readDir = require('../../utils/migration/read-dir');
 const cleanHtml = require('../../utils/migration/clean-html');
-const reuploadImages = require('../../utils/migration/reupload-images-in-html');
+const reuploadImages = require('../../utils/migration/migrate-images');
 
 const { postsDir, tagsDir } = argv;
 
