@@ -28,7 +28,7 @@ connectToDB()
 
     return makePostObject(name, content)
       .then(trashPost => models.trashPost.create(trashPost))
-      .catch(() => Logger.error('Failed to migrate', name, 'trash post. You should migrate it manually.'));
+      .catch(() => Logger.error(`Failed to migrate ${name} trash post. You should migrate it manually.`));
   }), Promise.resolve()))
   .then(() => Logger.success('Successfully migrated trash'))
   .catch(error => Logger.error(error))

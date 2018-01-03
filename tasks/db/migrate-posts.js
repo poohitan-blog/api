@@ -46,7 +46,7 @@ connectToDB()
 
     return makePostObject(name, content, tagFiles)
       .then(post => models.post.create(post))
-      .catch(() => Logger.error('Failed to migrate', name, 'post. You should migrate it manually.'));
+      .catch(() => Logger.error(`Failed to migrate ${name} post. You should migrate it manually.`));
   }), Promise.resolve()))
   .then(() => Logger.success('Successfully migrated posts'))
   .catch(error => Logger.error(error))

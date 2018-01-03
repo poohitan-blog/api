@@ -18,6 +18,8 @@ function getImagesFromHTML(html) {
 
 function uploadImage(stream) {
   return new Promise((resolve, reject) => {
+    stream.on('error', error => reject(error));
+
     request.post({
       url: `${config.apiURL}/images`,
       formData: {
@@ -54,11 +56,15 @@ module.exports = (html) => {
   const imageLinks = getImagesFromHTML(html);
   let htmlCopy = html;
 
-  return imageLinks.reduce((promiseChain, link) => promiseChain.then(() => uploadImage(downloadImage(link)))
-    .then((newLink) => {
-      Logger.log('Replacing old link:', link, 'with new link:', newLink);
+  return imageLinks.reduce(
+    (promiseChain, link) => promiseChain.then(() => uploadImage(downloadImage(link)))
+      .then((newLink) => {
+        Logger.log('Replacing old link:', link, 'with new link:', newLink);
 
-      htmlCopy = htmlCopy.replace(new RegExp(link, 'g'), newLink);
-    }), Promise.resolve())
+        htmlCopy = htmlCopy.replace(new RegExp(link, 'gi'), newLink);
+      })
+      .catch(() => Logger.error(`Failed to reupload ${link}`)),
+    Promise.resolve(),
+    )
     .then(() => htmlCopy);
 };

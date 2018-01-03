@@ -31,7 +31,7 @@ connectToDB()
 
     return makePageObject(name, content)
       .then(page => models.page.create(page))
-      .catch(() => Logger.error('Failed to migrate', name, 'page. You should migrate it manually.'));
+      .catch(() => Logger.error(`Failed to migrate ${name} page. You should migrate it manually.`));
   }), Promise.resolve()))
   .then(() => Logger.success('Successfully migrated pages'))
   .catch(error => Logger.error(error))
