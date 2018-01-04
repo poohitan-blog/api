@@ -43,6 +43,15 @@ router.post('/', routeProtector, upload, (req, res) => {
   }));
 });
 
+router.post('/froala', routeProtector, upload, (req, res) => {
+  const file = req.files[0];
+  const keyWithoutEnvironment = file.key.replace(`${config.environment}/`, '');
+
+  res.json({
+    link: `${config.apiURL}/${keyWithoutEnvironment}`,
+  });
+});
+
 router.use(spiderDetector.middleware());
 router.use(hotlinkingProtector);
 
