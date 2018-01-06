@@ -1,16 +1,13 @@
 const express = require('express');
 const aws = require('aws-sdk');
 const request = require('request');
-const HttpStatus = require('http-status-codes');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
-const spiderDetector = require('spider-detector');
 const mime = require('mime-types');
 
 const config = require('../config').current;
 
-const sanitizeFilename = require('../utils/sanitize-filename');
-const hotlinkingProtector = require('../middlewares/hotlinking-protector');
+const sanitizeFilename = require('../helpers/sanitize-filename');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
 
@@ -52,31 +49,17 @@ router.post('/froala', routeProtector, upload, (req, res) => {
   });
 });
 
-router.use(spiderDetector.middleware());
-router.use(hotlinkingProtector);
-
 router.get('/:filename', (req, res, next) => {
   const originalURL = `https://${config.digitalOcean.spaces.name}.${config.digitalOcean.spaces.endpoint}/${config.environment}/files/${req.params.filename}`;
 
-  request({
-    url: originalURL,
-    encoding: null,
-  }, (error, response, body) => {
-    if (error) {
-      return next(error);
-    }
-
-    if (response.statusCode !== HttpStatus.OK) {
-      return next({ status: HttpStatus.NOT_FOUND });
-    }
-
-    res.header({
-      'Content-Disposition': 'attachment',
-      'Content-Type': mime.lookup(req.params.filename),
-    });
-
-    return res.send(body);
+  res.header({
+    'Content-Disposition': 'attachment',
+    'Content-Type': mime.lookup(req.params.filename),
   });
+
+  request(originalURL)
+    .pipe(res)
+    .on('error', error => next(error));
 });
 
 router.use(errorHandler);
