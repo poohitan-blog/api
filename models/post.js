@@ -6,7 +6,7 @@ const CUT_TAG = '<cut>';
 module.exports = model('Post', {
   title: String,
   body: String,
-  path: { type: String, index: true },
+  path: { type: String, index: true, unique: true },
   tags: { type: [String], default: [] },
   private: { type: Boolean, default: false },
   publishedAt: { type: Date, default: () => new Date() },

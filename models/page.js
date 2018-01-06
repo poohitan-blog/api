@@ -4,7 +4,7 @@ const slugifyText = require('../helpers/slugify-text');
 module.exports = model('Page', {
   title: String,
   body: String,
-  path: { type: String, index: true },
+  path: { type: String, index: true, unique: true },
   private: { type: Boolean, default: false },
 }, {
   indexes: [
