@@ -1,9 +1,9 @@
 const express = require('express');
 const aws = require('aws-sdk');
 const request = require('request');
-const multer = require('multer');
-const multerS3 = require('multer-s3');
+const Busboy = require('busboy');
 const mime = require('mime-types');
+const sharp = require('sharp');
 
 const config = require('../config').current;
 
@@ -17,47 +17,78 @@ const s3 = new aws.S3({
   endpoint: spacesEndpoint,
 });
 
-const upload = multer({
-  storage: multerS3({
-    s3,
-    bucket: config.digitalOcean.spaces.name,
-    acl: 'public-read',
-    contentDisposition: 'inline',
-    contentType: multerS3.AUTO_CONTENT_TYPE,
-    key(req, file, callback) {
-      const fileName = `${config.environment}/images/${Date.now()}_${sanitizeFilename(file.originalname)}`;
+function generatePreview() {
+  return sharp().resize(550, null).withoutEnlargement().blur(25);
+}
 
-      callback(null, fileName);
-    },
-  }),
-}).any('images');
+function processBeforeUpload() {
+  return sharp()
+    .resize(1920, null)
+    .withoutEnlargement();
+}
 
-router.post('/', routeProtector, upload, (req, res) => {
-  res.json(req.files.map((file) => {
-    const keyWithoutEnvironment = file.key.replace(`${config.environment}/`, '');
+function upload(file, filename, contentType) {
+  return s3.upload({
+    Bucket: config.digitalOcean.spaces.name,
+    Key: `${config.environment}/images/${Date.now()}_${sanitizeFilename(filename)}`,
+    Body: file,
+    ACL: 'public-read',
+    ContentType: contentType,
+    ContentDisposition: 'inline',
+  })
+    .promise()
+    .then(data => data.Key);
+}
 
-    return `${config.apiURL}/${keyWithoutEnvironment}`;
-  }));
+function manageUpload(req) {
+  return new Promise((resolve, reject) => {
+    const busboy = new Busboy({ headers: req.headers });
+    const uploads = [];
+
+    busboy.on('file', (fieldname, file, filename, encoding, mimeType) => {
+      uploads.push(upload(file.pipe(processBeforeUpload()), filename, mimeType));
+    });
+
+    busboy.on('finish', () => {
+      Promise.all(uploads)
+        .then((fileKeys) => {
+          const proxiedLinks = fileKeys.map(key => `${config.apiURL}/${key.replace(`${config.environment}/`, '')}`);
+
+          resolve(proxiedLinks);
+        })
+        .catch(reject);
+    });
+
+    req.pipe(busboy);
+  });
+}
+
+router.post('/', routeProtector, (req, res, next) => {
+  manageUpload(req)
+    .then(links => res.json(links))
+    .catch(next);
 });
 
-router.post('/froala', routeProtector, upload, (req, res) => {
-  const file = req.files[0];
-  const keyWithoutEnvironment = file.key.replace(`${config.environment}/`, '');
-
-  res.json({
-    link: `${config.apiURL}/${keyWithoutEnvironment}`,
-  });
+router.post('/froala', routeProtector, (req, res, next) => {
+  manageUpload(req)
+    .then(links => res.json({ link: links[0] }))
+    .catch(next);
 });
 
 router.get('/:filename', (req, res, next) => {
   const originalURL = `https://${config.digitalOcean.spaces.name}.${config.digitalOcean.spaces.endpoint}/${config.environment}/images/${req.params.filename}`;
+  const { preview } = req.query;
 
   res.header({
     'Content-Disposition': 'inline',
     'Content-Type': mime.lookup(req.params.filename),
   });
 
-  request(originalURL)
+  if (preview) {
+    return request(originalURL).pipe(generatePreview()).pipe(res);
+  }
+
+  return request(originalURL)
     .pipe(res)
     .on('error', error => next(error));
 });

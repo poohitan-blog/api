@@ -1,8 +1,7 @@
 const express = require('express');
 const aws = require('aws-sdk');
 const request = require('request');
-const multer = require('multer');
-const multerS3 = require('multer-s3');
+const Busboy = require('busboy');
 const mime = require('mime-types');
 
 const config = require('../config').current;
@@ -17,36 +16,52 @@ const s3 = new aws.S3({
   endpoint: spacesEndpoint,
 });
 
-const upload = multer({
-  storage: multerS3({
-    s3,
-    bucket: config.digitalOcean.spaces.name,
-    acl: 'public-read',
-    contentDisposition: 'attachment',
-    contentType: multerS3.AUTO_CONTENT_TYPE,
-    key(req, file, callback) {
-      const fileName = `${config.environment}/files/${Date.now()}_${sanitizeFilename(file.originalname)}`;
+function upload(file, filename, contentType) {
+  return s3.upload({
+    Bucket: config.digitalOcean.spaces.name,
+    Key: `${config.environment}/files/${Date.now()}_${sanitizeFilename(filename)}`,
+    Body: file,
+    ACL: 'public-read',
+    ContentType: contentType,
+    ContentDisposition: 'attachment',
+  })
+    .promise()
+    .then(data => data.Key);
+}
 
-      callback(null, fileName);
-    },
-  }),
-}).any('files');
+function manageUpload(req) {
+  return new Promise((resolve, reject) => {
+    const busboy = new Busboy({ headers: req.headers });
+    const uploads = [];
 
-router.post('/', routeProtector, upload, (req, res) => {
-  res.json(req.files.map((file) => {
-    const keyWithoutEnvironment = file.key.replace(`${config.environment}/`, '');
+    busboy.on('file', (fieldname, file, filename, encoding, mimeType) => {
+      uploads.push(upload(file, filename, mimeType));
+    });
 
-    return `${config.apiURL}/${keyWithoutEnvironment}`;
-  }));
+    busboy.on('finish', () => {
+      Promise.all(uploads)
+        .then((fileKeys) => {
+          const proxiedLinks = fileKeys.map(key => `${config.apiURL}/${key.replace(`${config.environment}/`, '')}`);
+
+          resolve(proxiedLinks);
+        })
+        .catch(reject);
+    });
+
+    req.pipe(busboy);
+  });
+}
+
+router.post('/', routeProtector, (req, res, next) => {
+  manageUpload(req)
+    .then(links => res.json(links))
+    .catch(next);
 });
 
-router.post('/froala', routeProtector, upload, (req, res) => {
-  const file = req.files[0];
-  const keyWithoutEnvironment = file.key.replace(`${config.environment}/`, '');
-
-  res.json({
-    link: `${config.apiURL}/${keyWithoutEnvironment}`,
-  });
+router.post('/froala', routeProtector, (req, res, next) => {
+  manageUpload(req)
+    .then(links => res.json({ link: links[0] }))
+    .catch(next);
 });
 
 router.get('/:filename', (req, res, next) => {
