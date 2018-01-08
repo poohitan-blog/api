@@ -17,13 +17,20 @@ const s3 = new aws.S3({
   endpoint: spacesEndpoint,
 });
 
+const PREVIEW_WIDTH = 550;
+const PREVIEW_BLUR = 25;
+const MAX_WIDTH = 1920;
+
 function generatePreview() {
-  return sharp().resize(550, null).withoutEnlargement().blur(25);
+  return sharp()
+    .resize(PREVIEW_WIDTH, null)
+    .withoutEnlargement()
+    .blur(PREVIEW_BLUR);
 }
 
 function processBeforeUpload() {
   return sharp()
-    .resize(1920, null)
+    .resize(MAX_WIDTH, null)
     .withoutEnlargement();
 }
 
@@ -85,7 +92,10 @@ router.get('/:filename', (req, res, next) => {
   });
 
   if (preview) {
-    return request(originalURL).pipe(generatePreview()).pipe(res);
+    return request(originalURL)
+      .pipe(generatePreview())
+      .pipe(res)
+      .on('error', error => next(error));
   }
 
   return request(originalURL)
