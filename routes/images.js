@@ -94,7 +94,7 @@ router.get('/:filename', (req, res, next) => {
   if (preview) {
     return request(originalURL)
       .pipe(generatePreview())
-      .on('error', error => next(error))
+      .on('error', error => next(`Invalid image ${req.params.filename}`))
       .pipe(res);
   }
 
