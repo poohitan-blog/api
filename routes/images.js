@@ -94,13 +94,12 @@ router.get('/:filename', (req, res, next) => {
   if (preview) {
     return request(originalURL)
       .pipe(generatePreview())
-      .pipe(res)
-      .on('error', error => next(error));
+      .on('error', error => next(error))
+      .pipe(res);
   }
 
   return request(originalURL)
-    .pipe(res)
-    .on('error', error => next(error));
+    .pipe(res);
 });
 
 router.use(errorHandler);
