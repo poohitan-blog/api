@@ -1,6 +1,7 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
 const models = require('../models');
+const generateQueryFilter = require('../helpers/generate-query-filter');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
 
@@ -8,7 +9,7 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const filter = {};
+    const filter = generateQueryFilter({ model: models.post, query: req.query });
 
     if (!req.isAuthenticated) {
       filter.private = false;

@@ -18,6 +18,10 @@ module.exports = (modelName, fields, { indexes = [], methods = {}, middlewares =
   schema.plugin(mongoosePaginate);
 
   schema.method('serialize', serialize);
+  schema.statics.getFieldNames = function () {
+    return Object.keys(fields);
+  };
+
   Object.keys(methods).forEach((methodName) => {
     const method = methods[methodName];
 
