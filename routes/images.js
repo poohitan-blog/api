@@ -83,15 +83,18 @@ router.post('/froala', routeProtector, (req, res, next) => {
 });
 
 router.get('/:filename', (req, res, next) => {
-  const originalURL = `https://${config.digitalOcean.spaces.name}.${config.digitalOcean.spaces.endpoint}/${config.environment}/images/${req.params.filename}`;
-  const { preview } = req.query;
+  const PREVIEW_PARAM = ':preview';
+  const { filename } = req.params;
+  const previewRequested = filename.includes(PREVIEW_PARAM);
+  const originalFilename = previewRequested ? filename.replace(PREVIEW_PARAM, '') : filename;
+  const originalURL = `https://${config.digitalOcean.spaces.name}.${config.digitalOcean.spaces.endpoint}/${config.environment}/images/${originalFilename}`;
 
   res.header({
     'Content-Disposition': 'inline',
-    'Content-Type': mime.lookup(req.params.filename),
+    'Content-Type': mime.lookup(originalFilename),
   });
 
-  if (preview) {
+  if (previewRequested) {
     return request(originalURL)
       .pipe(generatePreview())
       .on('error', () => next(`Invalid image ${req.params.filename}`))

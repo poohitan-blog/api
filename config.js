@@ -36,6 +36,7 @@ const config = {
     corsAllowedOrigins: [
       'poohitan.com',
       'new.poohitan.com',
+      'api.poohitan.com',
     ],
 
     server: {
