@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const Logger = require('logger');
 
 const config = require('./config').current;
 const connectToDB = require('./utils/connect-to-db');
@@ -10,7 +11,6 @@ const queryParser = require('./middlewares/query-parser');
 const authParser = require('./middlewares/auth-parser');
 const errorHandler = require('./middlewares/error-handler');
 const routes = require('./routes');
-const Logger = require('./services/logger');
 
 const app = express();
 

@@ -1,5 +1,5 @@
+const Logger = require('logger');
 const connectToDB = require('../../utils/connect-to-db');
-const Logger = require('../../services/logger');
 const models = require('../../models');
 
 connectToDB()

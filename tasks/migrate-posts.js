@@ -1,12 +1,12 @@
 const { argv } = require('yargs'); // eslint-disable-line
 const moment = require('moment');
-const connectToDB = require('../../utils/connect-to-db');
-const Logger = require('../../services/logger');
-const slugifyText = require('../../helpers/slugify-text');
-const models = require('../../models');
-const readDir = require('../../utils/migration/read-dir');
-const cleanHtml = require('../../utils/migration/clean-html');
-const reuploadImages = require('../../utils/migration/migrate-images');
+const Logger = require('logger');
+const connectToDB = require('../utils/connect-to-db');
+const slugifyText = require('../helpers/slugify-text');
+const models = require('../models');
+const readDir = require('../utils/migration/read-dir');
+const cleanHtml = require('../utils/migration/clean-html');
+const reuploadImages = require('../utils/migration/migrate-images');
 
 const { postsDir, tagsDir } = argv;
 

@@ -1,8 +1,6 @@
 const express = require('express');
 const aws = require('aws-sdk');
-const request = require('request');
 const Busboy = require('busboy');
-const mime = require('mime-types');
 const sharp = require('sharp');
 
 const config = require('../config').current;
@@ -17,16 +15,7 @@ const s3 = new aws.S3({
   endpoint: spacesEndpoint,
 });
 
-const PREVIEW_WIDTH = 550;
-const PREVIEW_BLUR = 25;
 const MAX_WIDTH = 1920;
-
-function generatePreview() {
-  return sharp()
-    .resize(PREVIEW_WIDTH, null)
-    .withoutEnlargement()
-    .blur(PREVIEW_BLUR);
-}
 
 function processBeforeUpload() {
   return sharp()
@@ -59,7 +48,7 @@ function manageUpload(req) {
     busboy.on('finish', () => {
       Promise.all(uploads)
         .then((fileKeys) => {
-          const proxiedLinks = fileKeys.map(key => `${config.apiURL}/${key.replace(`${config.environment}/`, '')}`);
+          const proxiedLinks = fileKeys.map(key => `${config.staticURL}/${key.replace(`${config.environment}/`, '')}`);
 
           resolve(proxiedLinks);
         })
@@ -80,31 +69,6 @@ router.post('/froala', routeProtector, (req, res, next) => {
   manageUpload(req)
     .then(links => res.json({ link: links[0] }))
     .catch(next);
-});
-
-router.get('/:filename', (req, res, next) => {
-  const PREVIEW_PARAM = ':preview';
-  const { filename } = req.params;
-  const previewRequested = filename.includes(PREVIEW_PARAM);
-  const originalFilename = previewRequested ? filename.replace(PREVIEW_PARAM, '') : filename;
-  const originalURL = `https://${config.digitalOcean.spaces.name}.${config.digitalOcean.spaces.endpoint}/${config.environment}/images/${originalFilename}`;
-
-  res.header({
-    'Content-Disposition': 'inline',
-    'Content-Type': mime.lookup(originalFilename),
-  });
-
-  if (previewRequested) {
-    return request(originalURL)
-      .pipe(generatePreview())
-      .on('error', () => next(`Invalid image ${req.params.filename}`))
-      .pipe(res)
-      .on('error', error => next(error));
-  }
-
-  return request(originalURL)
-    .pipe(res)
-    .on('error', error => next(error));
 });
 
 router.use(errorHandler);

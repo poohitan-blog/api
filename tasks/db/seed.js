@@ -1,7 +1,7 @@
 const moment = require('moment');
+const Logger = require('logger');
 const models = require('../../models');
 const connectToDB = require('../../utils/connect-to-db');
-const Logger = require('../../services/logger');
 
 const posts = [
   {

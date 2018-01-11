@@ -1,5 +1,5 @@
 const request = require('request');
-const Logger = require('../../services/logger');
+const Logger = require('logger');
 const config = require('../../config').current;
 
 function getImagesFromHTML(html) {

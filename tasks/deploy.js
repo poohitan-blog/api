@@ -1,7 +1,7 @@
 const { argv } = require('yargs'); // eslint-disable-line
-const execSSH = require('../utils/exec-ssh');
+const execSSH = require('exec-ssh');
 const fs = require('fs');
-const Logger = require('../services/logger');
+const Logger = require('logger');
 
 const env = argv.e || argv.env || argv.environment;
 

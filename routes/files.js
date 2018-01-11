@@ -1,8 +1,6 @@
 const express = require('express');
 const aws = require('aws-sdk');
-const request = require('request');
 const Busboy = require('busboy');
-const mime = require('mime-types');
 
 const config = require('../config').current;
 
@@ -41,7 +39,7 @@ function manageUpload(req) {
     busboy.on('finish', () => {
       Promise.all(uploads)
         .then((fileKeys) => {
-          const proxiedLinks = fileKeys.map(key => `${config.apiURL}/${key.replace(`${config.environment}/`, '')}`);
+          const proxiedLinks = fileKeys.map(key => `${config.staticURL}/${key.replace(`${config.environment}/`, '')}`);
 
           resolve(proxiedLinks);
         })
@@ -62,19 +60,6 @@ router.post('/froala', routeProtector, (req, res, next) => {
   manageUpload(req)
     .then(links => res.json({ link: links[0] }))
     .catch(next);
-});
-
-router.get('/:filename', (req, res, next) => {
-  const originalURL = `https://${config.digitalOcean.spaces.name}.${config.digitalOcean.spaces.endpoint}/${config.environment}/files/${req.params.filename}`;
-
-  res.header({
-    'Content-Disposition': 'attachment',
-    'Content-Type': mime.lookup(req.params.filename),
-  });
-
-  request(originalURL)
-    .pipe(res)
-    .on('error', error => next(error));
 });
 
 router.use(errorHandler);
