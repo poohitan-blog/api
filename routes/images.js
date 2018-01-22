@@ -2,6 +2,7 @@ const express = require('express');
 const aws = require('aws-sdk');
 const Busboy = require('busboy');
 const sharp = require('sharp');
+const Logger = require('logger');
 
 const config = require('../config').current;
 
@@ -33,7 +34,8 @@ function upload(file, filename, contentType) {
     ContentDisposition: 'inline',
   })
     .promise()
-    .then(data => data.Key);
+    .then(data => data.Key)
+    .catch(error => Logger.error(error));
 }
 
 function manageUpload(req) {
@@ -48,7 +50,7 @@ function manageUpload(req) {
     busboy.on('finish', () => {
       Promise.all(uploads)
         .then((fileKeys) => {
-          const proxiedLinks = fileKeys.map(key => `${config.staticURL}/${key.replace(`${config.environment}/`, '')}`);
+          const proxiedLinks = fileKeys.filter(key => key).map(key => `${config.staticURL}/${key.replace(`${config.environment}/`, '')}`);
 
           resolve(proxiedLinks);
         })
