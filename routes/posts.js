@@ -4,6 +4,7 @@ const models = require('../models');
 const generateQueryFilter = require('../helpers/generate-query-filter');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
+const getCommentsCount = require('../utils/get-comments-count');
 
 const router = express.Router();
 
@@ -26,8 +27,10 @@ router.get('/', async (req, res, next) => {
       sort: '-publishedAt',
     });
 
+    const commentsCounts = await getCommentsCount(docs.map(doc => doc.path));
+
     res.json({
-      docs: docs.map(doc => doc.serialize()),
+      docs: docs.map(doc => Object.assign({ commentsCount: commentsCounts[doc.path] }, doc.serialize())),
       meta: { currentPage: page, totalPages: pages },
     });
   } catch (error) {
@@ -38,12 +41,14 @@ router.get('/', async (req, res, next) => {
 router.get('/:post_path', async (req, res, next) => {
   try {
     const post = await models.post.findOne({ path: req.params.post_path });
+    const commentsCount = await getCommentsCount(req.params.post_path);
+    const postWithCommentsCount = Object.assign({ commentsCount }, post.serialize());
 
     if (!post) {
       return next({ status: HttpStatus.NOT_FOUND });
     }
 
-    return res.json(post.serialize());
+    return res.json(postWithCommentsCount);
   } catch (error) {
     return next(error);
   }
