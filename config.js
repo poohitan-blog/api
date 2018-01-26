@@ -21,6 +21,11 @@ const config = {
       },
     },
 
+    disqus: {
+      shortname: 'poohitan',
+      APIKey: 'yMQUyJ8OWzQhQdUQvU9UT1H2xtvaVbevBScMnaXkhkIauYUKjOoQGLL6usjy7Q3b',
+    },
+
     jwtSecret: 'supersecret',
   },
 
@@ -67,6 +72,11 @@ const config = {
         name: 'poohitan-com',
         endpoint: 'ams3.digitaloceanspaces.com',
       },
+    },
+
+    disqus: {
+      shortname: 'poohitan',
+      APIKey: 'yMQUyJ8OWzQhQdUQvU9UT1H2xtvaVbevBScMnaXkhkIauYUKjOoQGLL6usjy7Q3b',
     },
 
     jwtSecret: process.env.POOHITAN_COM_JWT_SECRET,
