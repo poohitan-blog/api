@@ -26,7 +26,7 @@ const envVariables = {
   NODE_ENV: env,
   AWS_ACCESS_KEY_ID: process.env.DIGITAL_OCEAN_SPACE_KEY,
   AWS_SECRET_ACCESS_KEY: process.env.DIGITAL_OCEAN_SPACE_SECRET,
-  POOHITAN_COM_JWT_SECRET: process.env.DIGITAL_OCEAN_SPACE_SECRET,
+  POOHITAN_COM_JWT_SECRET: process.env.POOHITAN_COM_JWT_SECRET,
 };
 
 const envVariablesString = Object.keys(envVariables).map(envVariableName => `export ${envVariableName}=${envVariables[envVariableName]}`).join(' && ');

@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const filter = generateQueryFilter({ model: models.post, query: req.query });
+    const filter = generateQueryFilter({ model: models.page, query: req.query });
 
     if (!req.isAuthenticated) {
       filter.private = false;
