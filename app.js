@@ -14,7 +14,8 @@ const routes = require('./routes');
 
 const app = express();
 
-app.use(bodyParser.json({ type: 'application/json' }));
+
+app.use(bodyParser.json({ type: 'application/json', limit: '50mb' }));
 app.use(cookieParser());
 app.use(queryParser);
 
