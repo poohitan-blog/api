@@ -40,7 +40,9 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:post_path', async (req, res, next) => {
   try {
-    const post = await models.post.findOne({ path: req.params.post_path });
+    const post = req.isAuthenticated
+      ? await models.post.findOne({ path: req.params.post_path })
+      : await models.post.findOneAndUpdate({ path: req.params.post_path }, { $inc: { views: 1 } }, { new: true });
     const commentsCount = await getCommentsCount(req.params.post_path);
     const postWithCommentsCount = Object.assign({ commentsCount }, post.serialize());
 

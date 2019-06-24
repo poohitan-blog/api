@@ -8,6 +8,7 @@ module.exports = model('Post', {
   body: String,
   path: { type: String, index: true, unique: true },
   tags: { type: [String], default: [] },
+  views: { type: Number, default: 0 },
   private: { type: Boolean, default: false },
   publishedAt: { type: Date, default: () => new Date() },
 }, {
