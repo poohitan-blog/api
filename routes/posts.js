@@ -56,6 +56,52 @@ router.get('/:post_path', async (req, res, next) => {
   }
 });
 
+router.get('/:post_path/similar', async (req, res, next) => {
+  try {
+    const post = await models.post.findOne({ path: req.params.post_path });
+
+    if (!post) {
+      return next({ status: HttpStatus.NOT_FOUND });
+    }
+
+    const { tags } = post;
+
+    const similarPosts = await models.post
+      .find({
+        path: {
+          $ne: post.path,
+        },
+        tags: {
+          $elemMatch: {
+            $in: tags,
+          },
+        },
+        private: false,
+      })
+      .sort('-views')
+      .select('title body path views publishedAt tags');
+
+    const mainImageUrlRegex = /src=\\?"(\S+?)\\?"/;
+
+    const postsWithImages = similarPosts.map((similarPost) => {
+      const { _id, body, ...rest } = similarPost.toObject();
+      const matches = body.match(mainImageUrlRegex);
+
+      const image = matches ? matches[1] : null;
+
+      return {
+        id: _id,
+        image,
+        ...rest,
+      };
+    });
+
+    return res.json(postsWithImages);
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.post('/', routeProtector, async (req, res, next) => {
   try {
     const post = await models.post.create(req.body);
