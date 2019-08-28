@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -13,7 +15,6 @@ const errorHandler = require('./middlewares/error-handler');
 const routes = require('./routes');
 
 const app = express();
-
 
 app.use(bodyParser.json({ type: 'application/json', limit: '50mb' }));
 app.use(cookieParser());

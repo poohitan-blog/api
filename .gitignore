@@ -18,3 +18,5 @@ npm-debug.log*
 testem.log
 .DS_Store
 .next
+
+.env

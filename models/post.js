@@ -10,6 +10,7 @@ module.exports = model('Post', {
   tags: { type: [String], default: [] },
   views: { type: Number, default: 0 },
   private: { type: Boolean, default: false },
+  customStyles: String,
   publishedAt: { type: Date, default: () => new Date() },
 }, {
   indexes: [

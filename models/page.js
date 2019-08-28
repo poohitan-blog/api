@@ -6,6 +6,7 @@ module.exports = model('Page', {
   body: String,
   path: { type: String, index: true, unique: true },
   private: { type: Boolean, default: false },
+  customStyles: String,
 }, {
   indexes: [
     [
