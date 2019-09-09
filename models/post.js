@@ -12,6 +12,7 @@ module.exports = model('Post', {
   private: { type: Boolean, default: false },
   customStyles: String,
   publishedAt: { type: Date, default: () => new Date() },
+  translations: { type: [{ type: String, ref: 'PostTranslation' }], default: [] },
 }, {
   indexes: [
     [

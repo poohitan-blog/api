@@ -21,17 +21,29 @@ router.get('/', async (req, res, next) => {
     }
 
     const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
-    const { docs, pages } = await models.post.paginate(filter, {
-      page,
-      limit,
-      sort: '-publishedAt',
-    });
+    const { docs, pages } = await models.post
+      .paginate(filter, {
+        page,
+        limit,
+        sort: '-publishedAt',
+        populate: {
+          path: 'translations',
+          select: 'lang -_id',
+          match: req.isAuthenticated ? null : { private: false },
+        },
+      });
 
     const commentsCounts = await getCommentsCount(docs.map(doc => doc.path));
 
     res.json({
-      docs: docs.map(doc => Object.assign({ commentsCount: commentsCounts[doc.path] }, doc.serialize())),
-      meta: { currentPage: page, totalPages: pages },
+      docs: docs.map(doc => ({
+        ...doc.serialize(),
+        commentsCount: commentsCounts[doc.path],
+      })),
+      meta: {
+        currentPage: page,
+        totalPages: pages,
+      },
     });
   } catch (error) {
     next(error);
@@ -42,9 +54,19 @@ router.get('/:post_path', async (req, res, next) => {
   try {
     const post = req.isAuthenticated
       ? await models.post.findOne({ path: req.params.post_path })
-      : await models.post.findOneAndUpdate({ path: req.params.post_path }, { $inc: { views: 1 } }, { new: true });
+        .populate('translations')
+      : await models.post
+        .findOneAndUpdate({ path: req.params.post_path }, { $inc: { views: 1 } }, { new: true })
+        .populate({
+          path: 'translations',
+          match: { private: { $eq: false } },
+        });
+
     const commentsCount = await getCommentsCount(req.params.post_path);
-    const postWithCommentsCount = Object.assign({ commentsCount }, post.serialize());
+    const postWithCommentsCount = {
+      ...post.serialize(),
+      commentsCount,
+    };
 
     if (!post) {
       return next({ status: HttpStatus.NOT_FOUND });
