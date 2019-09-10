@@ -28,7 +28,7 @@ router.get('/', async (req, res, next) => {
         sort: '-publishedAt',
         populate: {
           path: 'translations',
-          select: 'lang -_id',
+          select: 'title lang -_id',
           match: req.isAuthenticated ? null : { private: false },
         },
       });
