@@ -21,11 +21,10 @@ async function fetchDataFromDisqus(previousData = {}, cursor) {
   const { body } = await request({ url, qs: query, json: true });
 
   const commentsCountByPost = body.response.reduce((result, thread) => {
-    const postPath = thread.identifiers[0];
-
-    return Object.assign({}, result, {
-      [postPath]: thread.posts,
-    });
+    return thread.identifiers.reduce((accumulator, identifier) => ({
+      [identifier]: thread.posts,
+      ...accumulator,
+    }), result);
   }, previousData);
 
   if (body.cursor && body.cursor.hasNext) {
@@ -73,7 +72,10 @@ async function getCommentsCountForManyPosts(postPaths) {
     promise.then(async (commentsCounts) => {
       const commentsCount = await getCommentsCountForSinglePost(postPath);
 
-      return Object.assign({ }, commentsCounts, { [postPath]: commentsCount });
+      return {
+        [postPath]: commentsCount,
+        ...commentsCounts,
+      };
     }), Promise.resolve({}));
 }
 
