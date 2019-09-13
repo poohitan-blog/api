@@ -57,10 +57,7 @@ router.get('/:post_path', async (req, res, next) => {
         .populate('translations')
       : await models.post
         .findOneAndUpdate({ path: req.params.post_path }, { $inc: { views: 1 } }, { new: true })
-        .populate({
-          path: 'translations',
-          match: { private: { $eq: false } },
-        });
+        .populate('translations');
 
     const commentsCount = await getCommentsCount(req.params.post_path);
     const postWithCommentsCount = {
