@@ -20,12 +20,11 @@ async function fetchDataFromDisqus(previousData = {}, cursor) {
 
   const { body } = await request({ url, qs: query, json: true });
 
-  const commentsCountByPost = body.response.reduce((result, thread) => {
-    return thread.identifiers.reduce((accumulator, identifier) => ({
+  const commentsCountByPost = body.response.reduce((result, thread) => thread.identifiers
+    .reduce((accumulator, identifier) => ({
       [identifier]: thread.posts,
       ...accumulator,
-    }), result);
-  }, previousData);
+    }), result), previousData);
 
   if (body.cursor && body.cursor.hasNext) {
     return fetchDataFromDisqus(commentsCountByPost, body.cursor.next);

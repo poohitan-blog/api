@@ -52,7 +52,6 @@ function manageUpload(req) {
       Promise.all(uploads)
         .then((fileKeys) => {
           const proxiedLinks = fileKeys.filter(key => key).map(key => `${config.staticURL}/${key.replace(`${config.environment}/`, '')}`);
-
           resolve(proxiedLinks);
         })
         .catch(reject);
