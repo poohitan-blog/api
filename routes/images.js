@@ -2,11 +2,11 @@ const express = require('express');
 const aws = require('aws-sdk');
 const Busboy = require('busboy');
 const sharp = require('sharp');
+const { transliterate } = require('transliteration');
 const Logger = require('logger');
 
 const config = require('../config').current;
 
-const slugifyText = require('../helpers/slugify-text');
 const sanitizeFilename = require('../helpers/sanitize-filename');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
@@ -28,7 +28,7 @@ function processBeforeUpload() {
 function upload(file, filename, contentType) {
   return s3.upload({
     Bucket: config.digitalOcean.spaces.name,
-    Key: `${config.environment}/images/${Date.now()}_${sanitizeFilename(slugifyText(filename))}`,
+    Key: `${config.environment}/images/${Date.now()}_${sanitizeFilename(transliterate(filename))}`,
     Body: file,
     ACL: 'public-read',
     ContentType: contentType,
