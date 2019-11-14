@@ -21,8 +21,7 @@ const MAX_WIDTH = 1920;
 
 function processBeforeUpload() {
   return sharp()
-    .resize(MAX_WIDTH, null)
-    .withoutEnlargement();
+    .resize(MAX_WIDTH, null, { withoutEnlargement: true });
 }
 
 function upload(file, filename, contentType) {
