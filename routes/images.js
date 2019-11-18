@@ -1,21 +1,13 @@
 const express = require('express');
 const aws = require('aws-sdk');
 const Busboy = require('busboy');
-const sharp = require('sharp');
-const util = require('util');
-const calculateAverageColor = util.promisify(require('image-average-color'));
-const ColorConvert = require('color-convert');
 const { transliterate } = require('transliteration');
 const Logger = require('logger');
 
 const config = require('../config').current;
 
 const sanitizeFilename = require('../helpers/sanitize-filename');
-<<<<<<< Updated upstream
-=======
 const getImageMedatada = require('../helpers/get-image-metadata');
-
->>>>>>> Stashed changes
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
 
@@ -40,19 +32,6 @@ function uploadImage(file, filename, contentType) {
     .promise()
     .then(data => data.Key)
     .catch(error => Logger.error(error));
-}
-
-async function getImageMedatada(image) {
-  return Promise.all([
-    calculateAverageColor(image)
-      .catch(error => console.error(error)),
-    sharp(image)
-      .metadata(),
-  ])
-    .then(([averageColor, metadata]) => ({
-      averageColor: averageColor ? ColorConvert.rgb.hex(averageColor) : null,
-      ...metadata,
-    }));
 }
 
 async function processImage(file, filename, contentType) {
