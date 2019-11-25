@@ -5,6 +5,7 @@ const CUT_TAG = '<cut>';
 
 module.exports = model('Post', {
   title: String,
+  description: String,
   body: String,
   path: { type: String, index: true, unique: true },
   tags: { type: [String], default: [] },
