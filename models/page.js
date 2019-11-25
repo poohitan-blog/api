@@ -2,11 +2,11 @@ const model = require('../utils/model');
 const slugifyText = require('../helpers/slugify-text');
 
 module.exports = model('Page', {
-  title: String,
-  body: String,
+  title: { type: String, default: '' },
+  body: { type: String, default: '' },
   path: { type: String, index: true, unique: true },
   private: { type: Boolean, default: false },
-  customStyles: String,
+  customStyles: { type: String, default: '' },
 }, {
   indexes: [
     [

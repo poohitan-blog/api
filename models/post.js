@@ -4,14 +4,14 @@ const slugifyText = require('../helpers/slugify-text');
 const CUT_TAG = '<cut>';
 
 module.exports = model('Post', {
-  title: String,
-  description: String,
-  body: String,
+  title: { type: String, default: '' },
+  description: { type: String, default: '' },
+  body: { type: String, default: '' },
   path: { type: String, index: true, unique: true },
   tags: { type: [String], default: [] },
   views: { type: Number, default: 0 },
   private: { type: Boolean, default: false },
-  customStyles: String,
+  customStyles: { type: String, default: '' },
   publishedAt: { type: Date, default: () => new Date() },
   translations: { type: [{ type: String, ref: 'PostTranslation' }], default: [] },
 }, {

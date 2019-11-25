@@ -1,10 +1,10 @@
 const model = require('../utils/model');
 
 module.exports = model('PostTranslation', {
-  title: String,
-  description: String,
-  body: String,
-  lang: String,
+  title: { type: String, default: '' },
+  description: { type: String, default: '' },
+  body: { type: String, default: '' },
+  lang: { type: String, default: '' },
   private: { type: Boolean, default: false },
 }, {
   indexes: [
