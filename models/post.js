@@ -12,6 +12,7 @@ module.exports = model('Post', {
   views: { type: Number, default: 0 },
   private: { type: Boolean, default: false },
   customStyles: { type: String, default: '' },
+  imagesWidth: Number,
   publishedAt: { type: Date, default: () => new Date() },
   translations: { type: [{ type: String, ref: 'PostTranslation' }], default: [] },
 }, {
