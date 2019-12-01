@@ -5,10 +5,11 @@ const errorHandler = require('../middlewares/error-handler');
 const router = express.Router();
 
 function searchText(model, query, additionalFields = {}) {
-  const findParams = Object.assign({
+  const findParams = {
     $text: { $search: `${query}` },
     deleted: false,
-  }, additionalFields);
+    ...additionalFields,
+  };
 
   return model
     .find(findParams, {
@@ -40,9 +41,9 @@ router.get('/', (req, res, next) => {
     searchText(models.trashPost, query),
   ])
     .then(([posts, pages, trashPosts]) => {
-      const postsSearchResults = posts.map(post => Object.assign({ searchResultType: 'post' }, post.serialize()));
-      const pagesSearchResults = pages.map(page => Object.assign({ searchResultType: 'page' }, page.serialize())); // eslint-disable-line
-      const trashPostsSearchResults = trashPosts.map(trashPost => Object.assign({ searchResultType: 'trashPost' }, trashPost.serialize()));
+      const postsSearchResults = posts.map(value => ({ searchResultType: 'post', ...value.serialize() }));
+      const pagesSearchResults = pages.map(value => ({ searchResultType: 'page', ...value.serialize() }));
+      const trashPostsSearchResults = trashPosts.map(value => ({ searchResultType: 'trashPost', ...value.serialize() }));
       const searchResults = [
         ...postsSearchResults,
         ...pagesSearchResults,

@@ -3,7 +3,10 @@ module.exports = ({ model, query }) => {
 
   return Object.keys(query).reduce((result, field) => {
     if (fields.includes(field)) {
-      return Object.assign({}, result, { [field]: query[field] });
+      return {
+        ...result,
+        [field]: query[field],
+      };
     }
 
     return result;

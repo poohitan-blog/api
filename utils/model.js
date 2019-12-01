@@ -5,12 +5,13 @@ const uuid = require('uuid');
 const serialize = require('./serialize');
 
 module.exports = (modelName, fields, { indexes = [], methods = {}, middlewares = {} } = {}) => {
-  const schema = new mongoose.Schema(Object.assign({
+  const schema = new mongoose.Schema({
     _id: {
       type: String,
       default: uuid.v4,
     },
-  }, fields), {
+    ...fields,
+  }, {
     timestamps: true,
   });
 
@@ -18,7 +19,7 @@ module.exports = (modelName, fields, { indexes = [], methods = {}, middlewares =
   schema.plugin(mongoosePaginate);
 
   schema.method('serialize', serialize);
-  schema.statics.getFieldNames = function () {
+  schema.statics.getFieldNames = function getFieldNames() {
     return Object.keys(fields);
   };
 

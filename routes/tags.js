@@ -33,10 +33,16 @@ router.get('/cloud', async (req, res, next) => {
         const postsCount = innerResult[tag];
 
         if (postsCount) {
-          return Object.assign({}, innerResult, { [tag]: postsCount + 1 });
+          return {
+            ...innerResult,
+            [tag]: postsCount + 1,
+          };
         }
 
-        return Object.assign({ [tag]: 1 }, innerResult);
+        return {
+          ...innerResult,
+          [tag]: 1,
+        };
       }, result), {});
 
     res.json(cloud);

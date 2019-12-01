@@ -19,9 +19,10 @@ function serialize(data) {
         serializedValue = fieldValue;
       }
 
-      return Object.assign({}, result, {
+      return {
+        ...result,
         [fieldName]: serializedValue,
-      });
+      };
     }, { id: dataToSerialize._id });
 }
 
