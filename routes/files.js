@@ -73,9 +73,9 @@ router.post('/', routeProtector, async (req, res, next) => {
 
 router.post('/froala', routeProtector, async (req, res, next) => {
   try {
-    const links = await manageUpload(req);
+    const [link] = await manageUpload(req);
 
-    res.json({ link: links[0] });
+    res.json({ link });
   } catch (error) {
     next(error);
   }

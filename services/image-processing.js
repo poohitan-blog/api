@@ -2,23 +2,38 @@ const sharp = require('sharp');
 const util = require('util');
 const calculateAverageColor = util.promisify(require('image-average-color'));
 const ColorConvert = require('color-convert');
-const Logger = require('logger');
+const Case = require('case');
 
-async function getImageMedatada(file) {
-  const [averageColor, metadata] = await Promise.all([
-    calculateAverageColor(file)
-      .catch(error => Logger.error(error)),
-    sharp(file)
-      .metadata()
-      .catch(error => Logger.error(error)),
-  ]);
+const ComputerVision = require('./azure/computer-vision');
 
-  return {
-    averageColor: averageColor ? ColorConvert.rgb.hex(averageColor) : null,
-    ...metadata,
-  };
+const MIN_ACCEPTABLE_RECOGNITION_CONFIDENCE = 0.7;
+
+async function getMetadata(file) {
+  const metadata = await sharp(file)
+    .metadata();
+
+  return metadata;
+}
+
+async function getAverageColor(file) {
+  const averageColor = await calculateAverageColor(file);
+
+  return averageColor ? ColorConvert.rgb.hex(averageColor) : null;
+}
+
+async function getCaption(url) {
+  const { captions } = await ComputerVision.describeImage(url);
+
+  const [caption = {}] = captions;
+  const { text, confidence } = caption;
+
+  return confidence > MIN_ACCEPTABLE_RECOGNITION_CONFIDENCE
+    ? Case.sentence(text)
+    : null;
 }
 
 module.exports = {
-  getImageMedatada,
+  getMetadata,
+  getAverageColor,
+  getCaption,
 };

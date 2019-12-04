@@ -1,10 +1,10 @@
 const { argv } = require('yargs'); // eslint-disable-line
-const request = require('request');
 const Logger = require('logger');
 
 const connectToDB = require('../utils/connect-to-db');
 const models = require('../models');
 const ImageProcessing = require('../services/image-processing');
+const TranslatorText = require('../services/azure/translator-text');
 
 const { post: postPath, trash } = argv;
 
@@ -22,38 +22,38 @@ function getImagesFromHTML(html) {
   return images;
 }
 
-function downloadImage(link) {
-  return new Promise((resolve, reject) => {
-    Logger.log('Downloading', link);
-
-    request({
-      url: link,
-      encoding: null,
-      timeout: 10000,
-    }, (error, response, body) => {
-      if (error) {
-        return reject(error);
+function processOneImage(imageLink) {
+  return ImageProcessing.getCaption(imageLink)
+    .then((caption) => {
+      if (!caption) {
+        return {};
       }
 
-      return resolve(body);
-    });
-  });
-}
+      return TranslatorText.translate(caption, { to: 'uk' })
+        .then((translatedCaption) => {
+          Logger.log(`Got captions for ${imageLink}: "${caption}", "${translatedCaption}"`);
 
-function processOneImage(imageLink) {
-  return downloadImage(imageLink)
-    .then(image => ImageProcessing.getMetadata(image))
-    .then((metadata) => {
-      const { width, height, averageColor } = metadata;
-
-      Logger.log(`Got metadata from ${imageLink}: ${JSON.stringify({ width, height, averageColor })}`);
-
-      return { width, height, averageColor };
+          return { captionEn: caption, captionUk: translatedCaption };
+        });
     });
 }
 
-function injectMetadata(html, link, { width, height, averageColor }) {
-  return html.replace(`"${link}"`, `"${link}" data-originalwidth="${width}" data-originalheight="${height}" data-averagecolor="${averageColor}"`);
+function injectMetadata(html, link, { captionEn, captionUk }) {
+  if (!captionEn) {
+    return html;
+  }
+
+  let newHtml = `src="${link}"`;
+
+  if (captionEn) {
+    newHtml += `data-captionen="${captionEn}"`;
+  }
+
+  if (captionUk) {
+    newHtml += `data-captionuk="${captionUk}"`;
+  }
+
+  return html.replace(`src="${link}"`, newHtml);
 }
 
 async function processOnePost(post) {
@@ -61,11 +61,7 @@ async function processOnePost(post) {
 
   const translations = await models.postTranslation.find({ _id: { $in: post.translations } });
 
-  const translationBodies = translations.map(translation => translation.body);
-  const allBodies = [post.body, ...translationBodies];
-
-  const imageLinks = getImagesFromHTML(allBodies.join(''))
-    .filter((link, index, array) => array.indexOf(link) === index);
+  const imageLinks = getImagesFromHTML(post.body);
 
   if (!imageLinks.length) {
     Logger.log(`Post "${post.title}" has no images`);
@@ -75,13 +71,16 @@ async function processOnePost(post) {
 
   return imageLinks.reduce((imagesPromiseChain, imageLink) => imagesPromiseChain
     .then(() => processOneImage(imageLink)
-      .then(({ width, height, averageColor }) => {
-        post.body = injectMetadata(post.body, imageLink, { width, height, averageColor }); // eslint-disable-line
+      .then(({ captionEn, captionUk }) => {
+        post.body = injectMetadata(post.body, imageLink, { captionEn, captionUk }); // eslint-disable-line
 
         translations.forEach((translation) => {
-          translation.body = injectMetadata(translation.body, imageLink, { width, height, averageColor }); // eslint-disable-line
+          translation.body = injectMetadata(translation.body, imageLink, { captionEn }); // eslint-disable-line
         });
       })
+      .then(() => new Promise((resolve) => {
+        setTimeout(() => resolve(), 3000);
+      }))
       .catch(error => Logger.error(error))), Promise.resolve())
     .then(() => Promise.all([
       post.save(),
@@ -103,14 +102,15 @@ function processOneTrashPost(trashPost) {
 
   return imageLinks.reduce((imagesPromiseChain, imageLink) => imagesPromiseChain
     .then(() => processOneImage(imageLink)
-      .then(({ width, height, averageColor }) => {
-        trashPost.body = injectMetadata(trashPost.body, imageLink, { width, height, averageColor }); // eslint-disable-line
+      .then(({ captionEn, captionUk }) => {
+        trashPost.body = injectMetadata(trashPost.body, imageLink, { captionEn, captionUk }); // eslint-disable-line
       })
       .catch(error => Logger.error(error))), Promise.resolve())
-    .then(() => Promise.all([
-      trashPost.save(),
-    ]))
-    .then(() => Logger.success(`Finished processing post ${trashPost._id}`));
+    .then(() => trashPost.save())
+    .then(() => Logger.success(`Finished processing post ${trashPost._id}`))
+    .then(() => new Promise((resolve) => {
+      setTimeout(() => resolve(), 3000);
+    }));
 }
 
 connectToDB()

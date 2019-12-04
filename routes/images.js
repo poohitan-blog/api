@@ -7,6 +7,7 @@ const Logger = require('logger');
 const config = require('../config').current;
 
 const ImageProcessing = require('../services/image-processing');
+const TranslatorText = require('../services/azure/translator-text');
 const sanitizeFilename = require('../helpers/sanitize-filename');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
@@ -38,19 +39,42 @@ async function upload(file, filename, contentType) {
   }
 }
 
-async function processImage(file, filename, contentType) {
-  const [url, metadata] = await Promise.all([
-    upload(file, filename, contentType),
-    ImageProcessing.getImageMedatada(file),
+async function processImage(file, filename, contentType, { analyze }) {
+  const filePath = await upload(file, filename, contentType);
+  const url = `${config.staticURL}/${filePath.replace(`${config.environment}/`, '')}`;
+
+  if (!analyze) {
+    return { url };
+  }
+
+  const [metadata, averageColor, caption] = await Promise.all([
+    ImageProcessing.getMetadata(file)
+      .catch(error => Logger.error(error)),
+    ImageProcessing.getAverageColor(file)
+      .catch(error => Logger.error(error)),
+    ImageProcessing.getCaption(url)
+      .catch(error => Logger.error(error)),
   ]);
+
+  const { width, height } = metadata;
+
+  const captionUk = caption
+    ? await TranslatorText.translate(caption, { to: 'uk' })
+    : null;
 
   return {
     url,
-    metadata,
+    metadata: {
+      averageColor,
+      captionUk,
+      captionEn: caption,
+      originalWidth: width,
+      originalHeight: height,
+    },
   };
 }
 
-function manageUpload(req) {
+function manageUpload(req, { analyze = false } = {}) {
   return new Promise((resolve, reject) => {
     const busboy = new Busboy({ headers: req.headers });
     const uploads = [];
@@ -62,7 +86,7 @@ function manageUpload(req) {
       file.on('end', () => {
         const buffer = Buffer.concat(chunks);
 
-        uploads.push(processImage(buffer, filename, mimeType));
+        uploads.push(processImage(buffer, filename, mimeType, { analyze }));
       });
     });
 
@@ -71,20 +95,7 @@ function manageUpload(req) {
         const uploadResults = await Promise.all(uploads);
 
         const images = uploadResults
-          .filter(item => item.url)
-          .map(({ url, metadata }) => {
-            const proxiedURL = `${config.staticURL}/${url.replace(`${config.environment}/`, '')}`;
-            const { width, height, averageColor } = metadata;
-
-            return {
-              url: proxiedURL,
-              metadata: {
-                originalWidth: width,
-                originalHeight: height,
-                averageColor,
-              },
-            };
-          });
+          .filter(item => item.url);
 
         resolve(images);
       } catch (error) {
@@ -108,7 +119,7 @@ router.post('/', routeProtector, async (req, res, next) => {
 
 router.post('/froala', routeProtector, async (req, res, next) => {
   try {
-    const [image] = await manageUpload(req);
+    const [image] = await manageUpload(req, { analyze: true });
 
     res.json({
       link: image.url,
