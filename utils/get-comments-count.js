@@ -86,7 +86,7 @@ async function getCommentsCount(param) {
 
     return getCommentsCountForSinglePost(param);
   } catch (error) {
-    return console.error(error);
+    return Logger.error(error);
   }
 }
 

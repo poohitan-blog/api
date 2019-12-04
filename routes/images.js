@@ -6,8 +6,8 @@ const Logger = require('logger');
 
 const config = require('../config').current;
 
+const ImageProcessing = require('../services/image-processing');
 const sanitizeFilename = require('../helpers/sanitize-filename');
-const getImageMedatada = require('../helpers/get-image-metadata');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
 
@@ -20,29 +20,34 @@ const s3 = new aws.S3({
 const { environment } = config;
 const spacesName = config.digitalOcean.spaces.name;
 
-function uploadImage(file, filename, contentType) {
-  return s3.upload({
-    Bucket: spacesName,
-    Key: `${environment}/images/${Date.now()}_${sanitizeFilename(transliterate(filename))}`,
-    Body: file,
-    ACL: 'public-read',
-    ContentType: contentType,
-    ContentDisposition: 'inline',
-  })
-    .promise()
-    .then(data => data.Key)
-    .catch(error => Logger.error(error));
+async function upload(file, filename, contentType) {
+  try {
+    const data = await s3.upload({
+      Bucket: spacesName,
+      Key: `${environment}/images/${Date.now()}_${sanitizeFilename(transliterate(filename))}`,
+      Body: file,
+      ACL: 'public-read',
+      ContentType: contentType,
+      ContentDisposition: 'inline',
+    })
+      .promise();
+
+    return data.Key;
+  } catch (error) {
+    return Logger.error(error);
+  }
 }
 
 async function processImage(file, filename, contentType) {
-  return Promise.all([
-    uploadImage(file, filename, contentType),
-    getImageMedatada(file),
-  ])
-    .then(([url, metadata]) => ({
-      url,
-      metadata,
-    }));
+  const [url, metadata] = await Promise.all([
+    upload(file, filename, contentType),
+    ImageProcessing.getImageMedatada(file),
+  ]);
+
+  return {
+    url,
+    metadata,
+  };
 }
 
 function manageUpload(req) {
@@ -61,47 +66,57 @@ function manageUpload(req) {
       });
     });
 
-    busboy.on('finish', () => {
-      Promise.all(uploads)
-        .then((uploadResults) => {
-          const images = uploadResults
-            .filter(item => item.url)
-            .map(({ url, metadata }) => {
-              const proxiedURL = `${config.staticURL}/${url.replace(`${config.environment}/`, '')}`;
-              const { width, height, averageColor } = metadata;
+    busboy.on('finish', async () => {
+      try {
+        const uploadResults = await Promise.all(uploads);
 
-              return {
-                url: proxiedURL,
-                metadata: {
-                  originalWidth: width,
-                  originalHeight: height,
-                  averageColor,
-                },
-              };
-            });
+        const images = uploadResults
+          .filter(item => item.url)
+          .map(({ url, metadata }) => {
+            const proxiedURL = `${config.staticURL}/${url.replace(`${config.environment}/`, '')}`;
+            const { width, height, averageColor } = metadata;
 
-          resolve(images);
-        })
-        .catch(reject);
+            return {
+              url: proxiedURL,
+              metadata: {
+                originalWidth: width,
+                originalHeight: height,
+                averageColor,
+              },
+            };
+          });
+
+        resolve(images);
+      } catch (error) {
+        reject(error);
+      }
     });
 
     req.pipe(busboy);
   });
 }
 
-router.post('/', routeProtector, (req, res, next) => {
-  manageUpload(req)
-    .then(images => res.json(images.map(image => image.url)))
-    .catch(next);
+router.post('/', routeProtector, async (req, res, next) => {
+  try {
+    const images = await manageUpload(req);
+
+    res.json(images.map(image => image.url));
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.post('/froala', routeProtector, (req, res, next) => {
-  manageUpload(req)
-    .then(([image]) => res.json({
+router.post('/froala', routeProtector, async (req, res, next) => {
+  try {
+    const [image] = await manageUpload(req);
+
+    res.json({
       link: image.url,
       ...image.metadata,
-    }))
-    .catch(next);
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.use(errorHandler);
