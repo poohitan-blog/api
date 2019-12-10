@@ -20,7 +20,7 @@ function searchText(model, query, additionalFields = {}) {
     });
 }
 
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
   const { query, page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
 
   if (query === null || query === undefined) {
@@ -35,40 +35,43 @@ router.get('/', (req, res, next) => {
     filter.private = false;
   }
 
-  Promise.all([
-    searchText(models.post, query, filter),
-    searchText(models.page, query, filter),
-    searchText(models.trashPost, query),
-  ])
-    .then(([posts, pages, trashPosts]) => {
-      const postsSearchResults = posts.map(value => ({ searchResultType: 'post', ...value.serialize() }));
-      const pagesSearchResults = pages.map(value => ({ searchResultType: 'page', ...value.serialize() }));
-      const trashPostsSearchResults = trashPosts.map(value => ({ searchResultType: 'trashPost', ...value.serialize() }));
-      const searchResults = [
-        ...postsSearchResults,
-        ...pagesSearchResults,
-        ...trashPostsSearchResults,
-      ]
-        .sort((left, right) => {
-          if (left.score > right.score) {
-            return -1;
-          }
+  try {
+    const [posts, pages, trashPosts] = await Promise.all([
+      searchText(models.post, query, filter),
+      searchText(models.page, query, filter),
+      searchText(models.trashPost, query),
+    ]);
 
-          if (left.score < right.score) {
-            return 1;
-          }
+    const postsSearchResults = posts.map(value => ({ searchResultType: 'post', ...value.serialize() }));
+    const pagesSearchResults = pages.map(value => ({ searchResultType: 'page', ...value.serialize() }));
+    const trashPostsSearchResults = trashPosts.map(value => ({ searchResultType: 'trashPost', ...value.serialize() }));
 
-          return 0;
-        });
+    const searchResults = [
+      ...postsSearchResults,
+      ...pagesSearchResults,
+      ...trashPostsSearchResults,
+    ]
+      .sort((left, right) => {
+        if (left.score > right.score) {
+          return -1;
+        }
 
-      const totalPages = Math.ceil(searchResults.length / limit);
+        if (left.score < right.score) {
+          return 1;
+        }
 
-      res.json({
-        docs: searchResults.slice((page - 1) * limit, page * limit),
-        meta: { currentPage: page, totalPages },
+        return 0;
       });
-    })
-    .catch(next);
+
+    const totalPages = Math.ceil(searchResults.length / limit);
+
+    res.json({
+      docs: searchResults.slice((page - 1) * limit, page * limit),
+      meta: { currentPage: page, totalPages },
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.use(errorHandler);

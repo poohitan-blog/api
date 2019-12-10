@@ -38,12 +38,16 @@ Object.keys(routes).forEach((route) => {
 
 app.use(errorHandler);
 
-connectToDB()
-  .then(() => {
+(async function main() {
+  try {
+    await connectToDB();
+
     app.listen(config.port);
 
     mongoose.set('debug', Logger.query);
 
     Logger.log('Listening on port', config.port);
-  })
-  .catch(error => Logger.error(error));
+  } catch (error) {
+    Logger.error(error);
+  }
+}());

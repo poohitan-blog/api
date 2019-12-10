@@ -6,8 +6,9 @@ const Logger = require('logger');
 
 const config = require('../config').current;
 
+const ImageProcessing = require('../services/image-processing');
+const TranslatorText = require('../services/azure/translator-text');
 const sanitizeFilename = require('../helpers/sanitize-filename');
-const getImageMedatada = require('../helpers/get-image-metadata');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
 
@@ -20,32 +21,60 @@ const s3 = new aws.S3({
 const { environment } = config;
 const spacesName = config.digitalOcean.spaces.name;
 
-function uploadImage(file, filename, contentType) {
-  return s3.upload({
-    Bucket: spacesName,
-    Key: `${environment}/images/${Date.now()}_${sanitizeFilename(transliterate(filename))}`,
-    Body: file,
-    ACL: 'public-read',
-    ContentType: contentType,
-    ContentDisposition: 'inline',
-  })
-    .promise()
-    .then(data => data.Key)
-    .catch(error => Logger.error(error));
+async function upload(file, filename, contentType) {
+  try {
+    const data = await s3.upload({
+      Bucket: spacesName,
+      Key: `${environment}/images/${Date.now()}_${sanitizeFilename(transliterate(filename))}`,
+      Body: file,
+      ACL: 'public-read',
+      ContentType: contentType,
+      ContentDisposition: 'inline',
+    })
+      .promise();
+
+    return data.Key;
+  } catch (error) {
+    return Logger.error(error);
+  }
 }
 
-async function processImage(file, filename, contentType) {
-  return Promise.all([
-    uploadImage(file, filename, contentType),
-    getImageMedatada(file),
-  ])
-    .then(([url, metadata]) => ({
-      url,
-      metadata,
-    }));
+async function processImage(file, filename, contentType, { analyze }) {
+  const filePath = await upload(file, filename, contentType);
+  const url = `${config.staticURL}/${filePath.replace(`${config.environment}/`, '')}`;
+
+  if (!analyze) {
+    return { url };
+  }
+
+  const [metadata, averageColor, caption] = await Promise.all([
+    ImageProcessing.getMetadata(file)
+      .catch(error => Logger.error(error)),
+    ImageProcessing.getAverageColor(file)
+      .catch(error => Logger.error(error)),
+    ImageProcessing.getCaption(url)
+      .catch(error => Logger.error(error)),
+  ]);
+
+  const { width, height } = metadata;
+
+  const captionUk = caption
+    ? await TranslatorText.translate(caption, { to: 'uk' })
+    : null;
+
+  return {
+    url,
+    metadata: {
+      averageColor,
+      captionUk,
+      captionEn: caption,
+      originalWidth: width,
+      originalHeight: height,
+    },
+  };
 }
 
-function manageUpload(req) {
+function manageUpload(req, { analyze = false } = {}) {
   return new Promise((resolve, reject) => {
     const busboy = new Busboy({ headers: req.headers });
     const uploads = [];
@@ -57,51 +86,48 @@ function manageUpload(req) {
       file.on('end', () => {
         const buffer = Buffer.concat(chunks);
 
-        uploads.push(processImage(buffer, filename, mimeType));
+        uploads.push(processImage(buffer, filename, mimeType, { analyze }));
       });
     });
 
-    busboy.on('finish', () => {
-      Promise.all(uploads)
-        .then((uploadResults) => {
-          const images = uploadResults
-            .filter(item => item.url)
-            .map(({ url, metadata }) => {
-              const proxiedURL = `${config.staticURL}/${url.replace(`${config.environment}/`, '')}`;
-              const { width, height, averageColor } = metadata;
+    busboy.on('finish', async () => {
+      try {
+        const uploadResults = await Promise.all(uploads);
 
-              return {
-                url: proxiedURL,
-                metadata: {
-                  originalWidth: width,
-                  originalHeight: height,
-                  averageColor,
-                },
-              };
-            });
+        const images = uploadResults
+          .filter(item => item.url);
 
-          resolve(images);
-        })
-        .catch(reject);
+        resolve(images);
+      } catch (error) {
+        reject(error);
+      }
     });
 
     req.pipe(busboy);
   });
 }
 
-router.post('/', routeProtector, (req, res, next) => {
-  manageUpload(req)
-    .then(images => res.json(images.map(image => image.url)))
-    .catch(next);
+router.post('/', routeProtector, async (req, res, next) => {
+  try {
+    const images = await manageUpload(req);
+
+    res.json(images.map(image => image.url));
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.post('/froala', routeProtector, (req, res, next) => {
-  manageUpload(req)
-    .then(([image]) => res.json({
+router.post('/froala', routeProtector, async (req, res, next) => {
+  try {
+    const [image] = await manageUpload(req, { analyze: true });
+
+    res.json({
       link: image.url,
       ...image.metadata,
-    }))
-    .catch(next);
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.use(errorHandler);

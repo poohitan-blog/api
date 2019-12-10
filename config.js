@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const config = {
   development: {
     port: 3100,
@@ -21,9 +23,22 @@ const config = {
       },
     },
 
+    microsoft: {
+      azure: {
+        computerVision: {
+          key: process.env.MICROSOFT_AZURE_COMPUTER_VISION_KEY,
+          endpoint: 'https://poohitan-com.cognitiveservices.azure.com/',
+        },
+        translatorText: {
+          key: process.env.MICTOSOFT_AZURE_TRANSLATOR_TEXT_KEY,
+          endpoint: 'https://api.cognitive.microsofttranslator.com/',
+        },
+      },
+    },
+
     disqus: {
       shortname: 'poohitan',
-      APIKey: 'yMQUyJ8OWzQhQdUQvU9UT1H2xtvaVbevBScMnaXkhkIauYUKjOoQGLL6usjy7Q3b',
+      APIKey: process.env.DISQUS_SECRET,
     },
 
     jwtSecret: 'supersecret',
@@ -74,12 +89,25 @@ const config = {
       },
     },
 
-    disqus: {
-      shortname: 'poohitan',
-      APIKey: 'yMQUyJ8OWzQhQdUQvU9UT1H2xtvaVbevBScMnaXkhkIauYUKjOoQGLL6usjy7Q3b',
+    microsoft: {
+      azure: {
+        computerVision: {
+          key: process.env.MICROSOFT_AZURE_COMPUTER_VISION_KEY,
+          endpoint: 'https://poohitan-com.cognitiveservices.azure.com/',
+        },
+        translatorText: {
+          key: process.env.MICTOSOFT_AZURE_TRANSLATOR_TEXT_KEY,
+          endpoint: 'https://api.cognitive.microsofttranslator.com/',
+        },
+      },
     },
 
-    jwtSecret: process.env.POOHITAN_COM_JWT_SECRET,
+    disqus: {
+      shortname: 'poohitan',
+      APIKey: process.env.DISQUS_SECRET,
+    },
+
+    jwtSecret: process.env.JWT_SECRET,
   },
 };
 

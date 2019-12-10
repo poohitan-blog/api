@@ -16,18 +16,22 @@ const s3 = new aws.S3({
   endpoint: spacesEndpoint,
 });
 
-function upload(file, filename, contentType) {
-  return s3.upload({
-    Bucket: config.digitalOcean.spaces.name,
-    Key: `${config.environment}/files/${Date.now()}_${sanitizeFilename(transliterate(filename))}`,
-    Body: file,
-    ACL: 'public-read',
-    ContentType: contentType,
-    ContentDisposition: 'attachment',
-  })
-    .promise()
-    .then(data => data.Key)
-    .catch(error => Logger.error(error));
+async function upload(file, filename, contentType) {
+  try {
+    const data = await s3.upload({
+      Bucket: config.digitalOcean.spaces.name,
+      Key: `${config.environment}/files/${Date.now()}_${sanitizeFilename(transliterate(filename))}`,
+      Body: file,
+      ACL: 'public-read',
+      ContentType: contentType,
+      ContentDisposition: 'attachment',
+    })
+      .promise();
+
+    return data.Key;
+  } catch (error) {
+    return Logger.error(error);
+  }
 }
 
 function manageUpload(req) {
@@ -39,30 +43,42 @@ function manageUpload(req) {
       uploads.push(upload(file, filename, mimeType));
     });
 
-    busboy.on('finish', () => {
-      Promise.all(uploads)
-        .then((fileKeys) => {
-          const proxiedLinks = fileKeys.filter(key => key).map(key => `${config.staticURL}/${key.replace(`${config.environment}/`, '')}`);
+    busboy.on('finish', async () => {
+      try {
+        const fileKeys = await Promise.all(uploads);
 
-          resolve(proxiedLinks);
-        })
-        .catch(reject);
+        const proxiedLinks = fileKeys
+          .filter(key => key)
+          .map(key => `${config.staticURL}/${key.replace(`${config.environment}/`, '')}`);
+
+        resolve(proxiedLinks);
+      } catch (error) {
+        reject(error);
+      }
     });
 
     req.pipe(busboy);
   });
 }
 
-router.post('/', routeProtector, (req, res, next) => {
-  manageUpload(req)
-    .then(links => res.json(links))
-    .catch(next);
+router.post('/', routeProtector, async (req, res, next) => {
+  try {
+    const links = await manageUpload(req);
+
+    res.json(links);
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.post('/froala', routeProtector, (req, res, next) => {
-  manageUpload(req)
-    .then(links => res.json({ link: links[0] }))
-    .catch(next);
+router.post('/froala', routeProtector, async (req, res, next) => {
+  try {
+    const [link] = await manageUpload(req);
+
+    res.json({ link });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.use(errorHandler);
