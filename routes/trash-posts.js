@@ -11,12 +11,12 @@ router.get('/', async (req, res, next) => {
   try {
     const filter = {};
 
-    if (req.query.createdAt) {
-      const createdAt = moment(req.query.createdAt);
+    if (req.query.permalink) {
+      const createdAt = moment.utc(req.query.permalink, 'YYYYMMDD_HHmmss');
 
       filter.createdAt = {
-        $gte: createdAt.clone().startOf('second'),
-        $lte: createdAt.clone().endOf('second'),
+        $gte: createdAt.clone().startOf('second').toDate(),
+        $lte: createdAt.clone().endOf('second').toDate(),
       };
     }
 
