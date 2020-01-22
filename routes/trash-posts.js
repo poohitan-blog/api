@@ -1,6 +1,8 @@
 const express = require('express');
 const moment = require('moment');
 const HttpStatus = require('http-status-codes');
+const random = require('random');
+
 const models = require('../models');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
@@ -33,6 +35,19 @@ router.get('/', async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+});
+
+router.get('/random', async (req, res, next) => {
+  try {
+    const trashPosts = await models.trashPost.find();
+
+    const randomPostIndex = random.int(0, trashPosts.length - 1);
+    const randomPost = trashPosts[randomPostIndex];
+
+    return res.json(randomPost.serialize());
+  } catch (error) {
+    return next(error);
   }
 });
 
