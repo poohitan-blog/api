@@ -1,10 +1,12 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
+
 const models = require('../models');
 const generateQueryFilter = require('../helpers/generate-query-filter');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
 const getCommentsCount = require('../utils/get-comments-count');
+const renderSass = require('../utils/render-sass');
 
 const router = express.Router();
 
@@ -26,6 +28,7 @@ router.get('/', async (req, res, next) => {
         page,
         limit,
         sort: '-publishedAt',
+        select: '-customStyles -customStylesProcessed',
         populate: {
           path: 'translations',
           select: 'title lang -_id',
@@ -38,6 +41,7 @@ router.get('/', async (req, res, next) => {
     res.json({
       docs: docs.map(doc => ({
         ...doc.serialize(),
+        body: req.query.cut ? doc.getCutBody() : doc.body,
         commentsCount: commentsCounts[doc.path],
       })),
       meta: {
@@ -53,10 +57,22 @@ router.get('/', async (req, res, next) => {
 router.get('/:post_path', async (req, res, next) => {
   try {
     const post = req.isAuthenticated
-      ? await models.post.findOne({ path: req.params.post_path })
+      ? await models.post
+        .findOne({
+          path: req.params.post_path,
+        })
         .populate('translations')
       : await models.post
-        .findOneAndUpdate({ path: req.params.post_path }, { $inc: { views: 1 } }, { new: true })
+        .findOneAndUpdate({
+          path: req.params.post_path,
+        }, {
+          $inc: {
+            views: 1,
+          },
+        }, {
+          new: true,
+        })
+        .select('-customStyles')
         .populate('translations');
 
     const commentsCount = await getCommentsCount(req.params.post_path);
@@ -123,7 +139,12 @@ router.get('/:post_path/similar', async (req, res, next) => {
 
 router.post('/', routeProtector, async (req, res, next) => {
   try {
-    const post = await models.post.create(req.body);
+    const { body } = req;
+
+    const post = await models.post.create({
+      ...body,
+      customStylesProcessed: await renderSass(body.customStyles),
+    });
 
     res.json(post.serialize());
   } catch (error) {
@@ -133,7 +154,16 @@ router.post('/', routeProtector, async (req, res, next) => {
 
 router.patch('/:post_path', routeProtector, async (req, res, next) => {
   try {
-    const post = await models.post.findOneAndUpdate({ path: req.params.post_path }, req.body, { new: true });
+    const { body, params } = req;
+
+    const post = await models.post.findOneAndUpdate({
+      path: params.post_path,
+    }, {
+      ...body,
+      customStylesProcessed: await renderSass(body.customStyles),
+    }, {
+      new: true,
+    });
 
     res.json(post.serialize());
   } catch (error) {

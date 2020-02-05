@@ -1,9 +1,11 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
+
 const models = require('../models');
 const generateQueryFilter = require('../helpers/generate-query-filter');
 const routeProtector = require('../middlewares/route-protector');
 const errorHandler = require('../middlewares/error-handler');
+const renderSass = require('../utils/render-sass');
 
 const router = express.Router();
 
@@ -20,6 +22,7 @@ router.get('/', async (req, res, next) => {
       page,
       limit,
       sort: '-createdAt',
+      select: '-customStyles -customStylesProcessed',
     });
 
     res.json({
@@ -47,7 +50,12 @@ router.get('/:page_path', async (req, res, next) => {
 
 router.post('/', routeProtector, async (req, res, next) => {
   try {
-    const page = await models.page.create(req.body);
+    const { body } = req;
+
+    const page = await models.page.create({
+      ...body,
+      customStylesProcessed: await renderSass(body.customStyles),
+    });
 
     res.json(page.serialize());
   } catch (error) {
@@ -57,7 +65,16 @@ router.post('/', routeProtector, async (req, res, next) => {
 
 router.patch('/:page_path', routeProtector, async (req, res, next) => {
   try {
-    const page = await models.page.findOneAndUpdate({ path: req.params.page_path }, req.body, { new: true });
+    const { body, params } = req;
+
+    const page = await models.page.findOneAndUpdate({
+      path: params.page_path,
+    }, {
+      ...body,
+      customStylesProcessed: await renderSass(body.customStyles),
+    }, {
+      new: true,
+    });
 
     res.json(page.serialize());
   } catch (error) {

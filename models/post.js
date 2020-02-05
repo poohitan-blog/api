@@ -12,6 +12,7 @@ module.exports = model('Post', {
   views: { type: Number, default: 0 },
   private: { type: Boolean, default: false },
   customStyles: { type: String, default: '' },
+  customStylesProcessed: { type: String, default: '' },
   imagesWidth: Number,
   publishedAt: { type: Date, default: () => new Date() },
   translations: { type: [{ type: String, ref: 'PostTranslation' }], default: [] },
@@ -30,16 +31,16 @@ module.exports = model('Post', {
     getCutBody() {
       const { body } = this;
       const cutPosition = body.indexOf(CUT_TAG);
+      const cutBody = cutPosition > 0 ? body.slice(0, cutPosition).trim() : body;
+      const hasTrailingOpenParagraph = cutBody.slice(-3) === '<p>';
 
-      return cutPosition > 0 ? body.slice(0, cutPosition) : body;
+      return hasTrailingOpenParagraph ? cutBody.slice(0, -3) : cutBody;
     },
   },
   middlewares: {
     save: {
-      pre(next) {
+      pre() {
         this.path = this.path || slugifyText(this.title);
-
-        next();
       },
     },
   },

@@ -22,12 +22,14 @@
   "dependencies": {
     "@azure/cognitiveservices-computervision": "^6.0.0",
     "@azure/ms-rest-js": "^2.0.4",
+    "autoprefixer": "^9.7.4",
     "aws-sdk": "^2.175.0",
     "body-parser": "^1.18.2",
     "busboy": "^0.2.14",
     "case": "^1.6.2",
     "color-convert": "^2.0.1",
     "cookie-parser": "^1.4.3",
+    "cssnano": "^4.1.10",
     "dotenv": "^8.1.0",
     "exec-ssh": "git+https://github.com/poohitan-blog/exec-ssh.git",
     "express": "^4.16.2",
@@ -39,9 +41,11 @@
     "mongoose": "^5.7.5",
     "mongoose-delete": "^0.4.0",
     "mongoose-paginate": "^5.0.3",
+    "node-sass": "^4.13.1",
     "parse-domain": "^2.0.0",
+    "postcss": "^7.0.26",
     "random": "^2.1.1",
-    "request": "^2.83.0",
+    "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
     "require-dir": "^0.3.2",
     "rss": "^1.2.2",
@@ -59,6 +63,6 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "nodemon": "^1.19.4",
-    "yargs": "^10.0.3"
+    "yargs": "^15.1.0"
   }
 }

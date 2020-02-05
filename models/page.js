@@ -7,6 +7,7 @@ module.exports = model('Page', {
   path: { type: String, index: true, unique: true },
   private: { type: Boolean, default: false },
   customStyles: { type: String, default: '' },
+  customStylesProcessed: { type: String, default: '' },
 }, {
   indexes: [
     [
@@ -20,10 +21,8 @@ module.exports = model('Page', {
   ],
   middlewares: {
     save: {
-      pre(next) {
+      pre() {
         this.path = this.path || (this.title ? slugifyText(this.title) : this._id);
-
-        next();
       },
     },
   },
