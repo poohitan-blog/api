@@ -14,7 +14,12 @@ const router = express.Router();
 
 const GOOGLE_ANALYTICS_URL = 'https://analytics.google.com/analytics/web/?pli=1#/realtime/rt-overview/a10797087w72262200p74574726/';
 
-function generateMessageTemplate({ title, body, geolocation }) {
+function generateMessageTemplate({
+  title,
+  body,
+  geolocation,
+  userAgent,
+}) {
   const {
     country,
     city,
@@ -22,16 +27,24 @@ function generateMessageTemplate({ title, body, geolocation }) {
     latitude,
   } = geolocation;
 
-  const footer = `Геодані:
-${country || 'N/A'}, ${city || 'N/A'}, <a href="https://www.google.com/maps/place/${longitude}, ${latitude}">${longitude}, ${latitude}</a>
+  const footerContent = [];
 
-<a href="${GOOGLE_ANALYTICS_URL}">Google Analytics</a>`;
+  if (geolocation) {
+    footerContent.push(`Геодані:
+${country || 'N/A'}, ${city || 'N/A'}, <a href="https://www.google.com/maps/place/${longitude}, ${latitude}">${longitude}, ${latitude}</a>`);
+  }
+
+  if (userAgent) {
+    footerContent.push(`User-Agent: <pre>${userAgent}</pre>`);
+  }
+
+  footerContent.push(`<a href="${GOOGLE_ANALYTICS_URL}">Google Analytics</a>`);
 
   return `${title}
 
 ${body}
 
-${footer}`;
+${footerContent.join('\n\n')}`;
 }
 
 router.use((req, res, next) => {
@@ -64,6 +77,7 @@ router.post('/page-view', async (req, res, next) => {
       title: '<b>Новий перегляд сторінки</b>',
       body: `<a href="${href}">${decodeURIComponent(path)}</a>`,
       geolocation: req.geolocation,
+      userAgent: req.headers['user-agent'],
     });
 
     if (current.environment === 'production') {
@@ -84,9 +98,21 @@ router.post('/flow', async (req, res, next) => {
 
     const flow = body.reduce((accumulator, item, index, collection) => {
       const nextItem = collection[index + 1];
+      const prevItem = collection[index - 1];
 
       if (!nextItem) {
         return accumulator;
+      }
+
+      if (prevItem && prevItem.path === item.path) {
+        return [
+          ...accumulator.slice(0, -1),
+          {
+            path: prevItem.path,
+            openedAt: prevItem.timestamp,
+            closedAt: nextItem.timestamp,
+          },
+        ];
       }
 
       const openedAt = item.timestamp;
@@ -132,6 +158,7 @@ router.post('/flow', async (req, res, next) => {
       body: `Ланцюжок переходів:
 ${flowDescription}`,
       geolocation: req.geolocation,
+      userAgent: req.headers['user-agent'],
     });
 
     if (current.environment === 'production') {
