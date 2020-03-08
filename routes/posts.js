@@ -3,23 +3,19 @@ const HttpStatus = require('http-status-codes');
 
 const models = require('../models');
 const generateQueryFilter = require('../helpers/generate-query-filter');
-const routeProtector = require('../middlewares/route-protector');
+const Guard = require('../middlewares/guard');
 const errorHandler = require('../middlewares/error-handler');
 const getCommentsCount = require('../utils/get-comments-count');
 const renderSass = require('../utils/render-sass');
 
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/', Guard.protectPrivateData, async (req, res, next) => {
   try {
-    const filter = generateQueryFilter({ model: models.post, query: req.query });
+    const filter = generateQueryFilter({ model: models.page, query: req.query });
 
     if (req.query.tag) {
       filter.tags = req.query.tag;
-    }
-
-    if (!req.isAuthenticated) {
-      filter.private = false;
     }
 
     const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
@@ -36,13 +32,13 @@ router.get('/', async (req, res, next) => {
         },
       });
 
-    const commentsCounts = await getCommentsCount(docs.map(doc => doc.path));
+    const commentsCounts = await getCommentsCount(docs.map(doc => doc.slug));
 
     res.json({
       docs: docs.map(doc => ({
         ...doc.serialize(),
         body: req.query.cut ? doc.getCutBody() : doc.body,
-        commentsCount: commentsCounts[doc.path],
+        commentsCount: commentsCounts[doc.slug],
       })),
       meta: {
         currentPage: page,
@@ -54,17 +50,17 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:post_path', async (req, res, next) => {
+router.get('/:slug', async (req, res, next) => {
   try {
     const post = req.isAuthenticated
       ? await models.post
         .findOne({
-          path: req.params.post_path,
+          slug: req.params.slug,
         })
         .populate('translations')
       : await models.post
         .findOneAndUpdate({
-          path: req.params.post_path,
+          slug: req.params.slug,
         }, {
           $inc: {
             views: 1,
@@ -75,7 +71,7 @@ router.get('/:post_path', async (req, res, next) => {
         .select('-customStyles')
         .populate('translations');
 
-    const commentsCount = await getCommentsCount(req.params.post_path);
+    const commentsCount = await getCommentsCount(req.params.slug);
     const postWithCommentsCount = {
       ...post.serialize(),
       commentsCount,
@@ -91,9 +87,9 @@ router.get('/:post_path', async (req, res, next) => {
   }
 });
 
-router.get('/:post_path/similar', async (req, res, next) => {
+router.get('/:slug/similar', async (req, res, next) => {
   try {
-    const post = await models.post.findOne({ path: req.params.post_path });
+    const post = await models.post.findOne({ slug: req.params.slug });
 
     if (!post) {
       return next({ status: HttpStatus.NOT_FOUND });
@@ -103,8 +99,8 @@ router.get('/:post_path/similar', async (req, res, next) => {
 
     const similarPosts = await models.post
       .find({
-        path: {
-          $ne: post.path,
+        slug: {
+          $ne: post.slug,
         },
         tags: {
           $elemMatch: {
@@ -114,7 +110,7 @@ router.get('/:post_path/similar', async (req, res, next) => {
         private: false,
       })
       .sort('-views')
-      .select('title body path views publishedAt tags');
+      .select('title body slug views publishedAt tags');
 
     const mainImageUrlRegex = /src=\\?"(\S+?)\\?"/;
 
@@ -137,7 +133,7 @@ router.get('/:post_path/similar', async (req, res, next) => {
   }
 });
 
-router.post('/', routeProtector, async (req, res, next) => {
+router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
     const { body } = req;
 
@@ -152,12 +148,12 @@ router.post('/', routeProtector, async (req, res, next) => {
   }
 });
 
-router.patch('/:post_path', routeProtector, async (req, res, next) => {
+router.patch('/:slug', Guard.protectRoute, async (req, res, next) => {
   try {
     const { body, params } = req;
 
     const post = await models.post.findOneAndUpdate({
-      path: params.post_path,
+      slug: params.slug,
     }, {
       ...body,
       customStylesProcessed: await renderSass(body.customStyles),
@@ -171,9 +167,9 @@ router.patch('/:post_path', routeProtector, async (req, res, next) => {
   }
 });
 
-router.delete('/:post_path', routeProtector, async (req, res, next) => {
+router.delete('/:slug', Guard.protectRoute, async (req, res, next) => {
   try {
-    await models.post.delete({ path: req.params.post_path });
+    await models.post.delete({ slug: req.params.slug });
 
     res.json({});
   } catch (error) {

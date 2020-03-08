@@ -5,14 +5,14 @@ const config = require('../config').current;
 
 module.exports = (error, req, res, next) => { // eslint-disable-line
   const serializedError = serializeError(error);
-  const status = error.status || HttpStatus.INTERNAL_SERVER_ERROR;
+  const status = error.status || HttpStatus.getStatusCode(error.message) || HttpStatus.INTERNAL_SERVER_ERROR;
 
   Logger.error(serializedError);
 
   serializedError.status = status;
   serializedError.message = serializedError.message || HttpStatus.getStatusText(status);
 
-  if (config.environment !== 'development') {
+  if (config.environment === 'production') {
     delete serializedError.stack;
   }
 

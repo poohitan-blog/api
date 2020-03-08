@@ -56,23 +56,23 @@ async function updateCache() {
   return cacheUpdatingPromise;
 }
 
-async function getCommentsCountForSinglePost(postPath) {
+async function getCommentsCountForSinglePost(postSlug) {
   const cacheHasExpired = Date.now() - cacheUpdatedAt > CACHE_EXPIRES_IN;
 
   if (cacheHasExpired) {
     cache = await updateCache();
   }
 
-  return cache[postPath];
+  return cache[postSlug];
 }
 
-async function getCommentsCountForManyPosts(postPaths) {
-  return postPaths.reduce((promise, postPath) =>
+async function getCommentsCountForManyPosts(postSlugs) {
+  return postSlugs.reduce((promise, postSlug) =>
     promise.then(async (commentsCounts) => {
-      const commentsCount = await getCommentsCountForSinglePost(postPath);
+      const commentsCount = await getCommentsCountForSinglePost(postSlug);
 
       return {
-        [postPath]: commentsCount,
+        [postSlug]: commentsCount,
         ...commentsCounts,
       };
     }), Promise.resolve({}));

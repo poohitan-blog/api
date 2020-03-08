@@ -4,7 +4,7 @@ const slugifyText = require('../helpers/slugify-text');
 module.exports = model('Page', {
   title: { type: String, default: '' },
   body: { type: String, default: '' },
-  path: { type: String, index: true, unique: true },
+  slug: { type: String, index: true, unique: true },
   private: { type: Boolean, default: false },
   customStyles: { type: String, default: '' },
   customStylesProcessed: { type: String, default: '' },
@@ -22,7 +22,7 @@ module.exports = model('Page', {
   middlewares: {
     save: {
       pre() {
-        this.path = this.path || (this.title ? slugifyText(this.title) : this._id);
+        this.slug = this.slug || (this.title ? slugifyText(this.title) : this._id);
       },
     },
   },

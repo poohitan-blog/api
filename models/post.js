@@ -7,7 +7,7 @@ module.exports = model('Post', {
   title: { type: String, default: '' },
   description: { type: String, default: '' },
   body: { type: String, default: '' },
-  path: { type: String, index: true, unique: true },
+  slug: { type: String, index: true, unique: true },
   tags: { type: [String], default: [] },
   views: { type: Number, default: 0 },
   private: { type: Boolean, default: false },
@@ -40,7 +40,7 @@ module.exports = model('Post', {
   middlewares: {
     save: {
       pre() {
-        this.path = this.path || slugifyText(this.title);
+        this.slug = this.slug || slugifyText(this.title);
       },
     },
   },

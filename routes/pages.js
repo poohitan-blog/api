@@ -3,19 +3,15 @@ const HttpStatus = require('http-status-codes');
 
 const models = require('../models');
 const generateQueryFilter = require('../helpers/generate-query-filter');
-const routeProtector = require('../middlewares/route-protector');
+const Guard = require('../middlewares/guard');
 const errorHandler = require('../middlewares/error-handler');
 const renderSass = require('../utils/render-sass');
 
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/', Guard.protectPrivateData, async (req, res, next) => {
   try {
     const filter = generateQueryFilter({ model: models.page, query: req.query });
-
-    if (!req.isAuthenticated) {
-      filter.private = false;
-    }
 
     const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
     const { docs, pages } = await models.page.paginate(filter, {
@@ -34,9 +30,9 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:page_path', async (req, res, next) => {
+router.get('/:slug', async (req, res, next) => {
   try {
-    const page = await models.page.findOne({ path: req.params.page_path });
+    const page = await models.page.findOne({ slug: req.params.slug });
 
     if (!page) {
       return next({ status: HttpStatus.NOT_FOUND });
@@ -48,7 +44,7 @@ router.get('/:page_path', async (req, res, next) => {
   }
 });
 
-router.post('/', routeProtector, async (req, res, next) => {
+router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
     const { body } = req;
 
@@ -63,12 +59,12 @@ router.post('/', routeProtector, async (req, res, next) => {
   }
 });
 
-router.patch('/:page_path', routeProtector, async (req, res, next) => {
+router.patch('/:slug', Guard.protectRoute, async (req, res, next) => {
   try {
     const { body, params } = req;
 
     const page = await models.page.findOneAndUpdate({
-      path: params.page_path,
+      slug: params.slug,
     }, {
       ...body,
       customStylesProcessed: await renderSass(body.customStyles),
@@ -82,9 +78,9 @@ router.patch('/:page_path', routeProtector, async (req, res, next) => {
   }
 });
 
-router.delete('/:page_path', routeProtector, async (req, res, next) => {
+router.delete('/:slug', Guard.protectRoute, async (req, res, next) => {
   try {
-    await models.page.delete({ path: req.params.page_path });
+    await models.page.delete({ slug: req.params.slug });
 
     res.json({});
   } catch (error) {

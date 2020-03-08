@@ -7,7 +7,7 @@ const { transliterate } = require('transliteration');
 const config = require('../config').current;
 
 const sanitizeFilename = require('../helpers/sanitize-filename');
-const routeProtector = require('../middlewares/route-protector');
+const Guard = require('../middlewares/guard');
 const errorHandler = require('../middlewares/error-handler');
 
 const router = express.Router();
@@ -61,7 +61,7 @@ function manageUpload(req) {
   });
 }
 
-router.post('/', routeProtector, async (req, res, next) => {
+router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
     const links = await manageUpload(req);
 
@@ -71,7 +71,7 @@ router.post('/', routeProtector, async (req, res, next) => {
   }
 });
 
-router.post('/froala', routeProtector, async (req, res, next) => {
+router.post('/froala', Guard.protectRoute, async (req, res, next) => {
   try {
     const [link] = await manageUpload(req);
 
