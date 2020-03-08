@@ -4,7 +4,7 @@ const HttpStatus = require('http-status-codes');
 const random = require('random');
 
 const models = require('../models');
-const routeProtector = require('../middlewares/route-protector');
+const Guard = require('../middlewares/guard');
 const errorHandler = require('../middlewares/error-handler');
 
 const router = express.Router();
@@ -65,7 +65,7 @@ router.get('/:trash_post_id', async (req, res, next) => {
   }
 });
 
-router.post('/', routeProtector, async (req, res, next) => {
+router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
     const trashPost = await models.trashPost.create(req.body);
 
@@ -75,7 +75,7 @@ router.post('/', routeProtector, async (req, res, next) => {
   }
 });
 
-router.patch('/:trash_post_id', routeProtector, async (req, res, next) => {
+router.patch('/:trash_post_id', Guard.protectRoute, async (req, res, next) => {
   try {
     const trashPost = await models.trashPost.findOneAndUpdate({
       _id: req.params.trash_post_id,
@@ -87,7 +87,7 @@ router.patch('/:trash_post_id', routeProtector, async (req, res, next) => {
   }
 });
 
-router.delete('/:trash_post_id', routeProtector, async (req, res, next) => {
+router.delete('/:trash_post_id', Guard.protectRoute, async (req, res, next) => {
   try {
     await models.trashPost.delete({ _id: req.params.trash_post_id });
 

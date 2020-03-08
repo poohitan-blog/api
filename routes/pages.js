@@ -3,19 +3,15 @@ const HttpStatus = require('http-status-codes');
 
 const models = require('../models');
 const generateQueryFilter = require('../helpers/generate-query-filter');
-const routeProtector = require('../middlewares/route-protector');
+const Guard = require('../middlewares/guard');
 const errorHandler = require('../middlewares/error-handler');
 const renderSass = require('../utils/render-sass');
 
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/', Guard.protectPrivateData, async (req, res, next) => {
   try {
     const filter = generateQueryFilter({ model: models.page, query: req.query });
-
-    if (!req.isAuthenticated) {
-      filter.private = false;
-    }
 
     const { page = 1, limit = Number.MAX_SAFE_INTEGER } = req.query;
     const { docs, pages } = await models.page.paginate(filter, {
@@ -48,7 +44,7 @@ router.get('/:page_path', async (req, res, next) => {
   }
 });
 
-router.post('/', routeProtector, async (req, res, next) => {
+router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
     const { body } = req;
 
@@ -63,7 +59,7 @@ router.post('/', routeProtector, async (req, res, next) => {
   }
 });
 
-router.patch('/:page_path', routeProtector, async (req, res, next) => {
+router.patch('/:page_path', Guard.protectRoute, async (req, res, next) => {
   try {
     const { body, params } = req;
 
@@ -82,7 +78,7 @@ router.patch('/:page_path', routeProtector, async (req, res, next) => {
   }
 });
 
-router.delete('/:page_path', routeProtector, async (req, res, next) => {
+router.delete('/:page_path', Guard.protectRoute, async (req, res, next) => {
   try {
     await models.page.delete({ path: req.params.page_path });
 

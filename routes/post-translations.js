@@ -2,7 +2,7 @@ const express = require('express');
 const HttpStatus = require('http-status-codes');
 const models = require('../models');
 const generateQueryFilter = require('../helpers/generate-query-filter');
-const routeProtector = require('../middlewares/route-protector');
+const Guard = require('../middlewares/guard');
 const errorHandler = require('../middlewares/error-handler');
 
 const router = express.Router();
@@ -40,7 +40,7 @@ router.get('/:post_translation_id', async (req, res, next) => {
   }
 });
 
-router.post('/', routeProtector, async (req, res, next) => {
+router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
     const postTranslation = await models.postTranslation.create(req.body);
 
@@ -50,7 +50,7 @@ router.post('/', routeProtector, async (req, res, next) => {
   }
 });
 
-router.patch('/:post_translation_id', routeProtector, async (req, res, next) => {
+router.patch('/:post_translation_id', Guard.protectRoute, async (req, res, next) => {
   try {
     const postTranslation = await models.postTranslation.findOneAndUpdate({
       _id: req.params.post_translation_id,
@@ -62,7 +62,7 @@ router.patch('/:post_translation_id', routeProtector, async (req, res, next) => 
   }
 });
 
-router.delete('/:post_translation_id', routeProtector, async (req, res, next) => {
+router.delete('/:post_translation_id', Guard.protectRoute, async (req, res, next) => {
   try {
     await models.postTranslation.delete({ _id: req.params.post_translation_id });
 

@@ -15,11 +15,7 @@ router.post('/', async (req, res, next) => {
     const { login, password } = req.body;
     const user = await models.user.findOne({ login });
 
-    if (!user) {
-      return next({ status: HttpStatus.NOT_FOUND });
-    }
-
-    if (user.password !== password) {
+    if (!user || user.password !== password) {
       return next({ status: HttpStatus.FORBIDDEN });
     }
 

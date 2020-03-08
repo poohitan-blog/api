@@ -9,7 +9,7 @@ const config = require('../config').current;
 const ImageProcessing = require('../services/image-processing');
 const TranslatorText = require('../services/azure/translator-text');
 const sanitizeFilename = require('../helpers/sanitize-filename');
-const routeProtector = require('../middlewares/route-protector');
+const Guard = require('../middlewares/guard');
 const errorHandler = require('../middlewares/error-handler');
 
 const router = express.Router();
@@ -107,7 +107,7 @@ function manageUpload(req, { analyze = false } = {}) {
   });
 }
 
-router.post('/', routeProtector, async (req, res, next) => {
+router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
     const images = await manageUpload(req);
 
@@ -117,7 +117,7 @@ router.post('/', routeProtector, async (req, res, next) => {
   }
 });
 
-router.post('/froala', routeProtector, async (req, res, next) => {
+router.post('/froala', Guard.protectRoute, async (req, res, next) => {
   try {
     const [image] = await manageUpload(req, { analyze: true });
 
