@@ -1,6 +1,5 @@
 const express = require('express');
 const RSS = require('rss');
-const moment = require('moment');
 const models = require('../models');
 const errorHandler = require('../middlewares/error-handler');
 const config = require('../config').current;
@@ -17,7 +16,7 @@ router.get('/', async (req, res, next) => {
       site_url: `${config.clientURL}`,
       image_url: `${config.clientURL}/static/logo.png`,
       language: 'uk',
-      pubDate: moment().toDate(),
+      pubDate: new Date(),
     });
 
     const { docs } = await models.post.paginate({ private: false }, {

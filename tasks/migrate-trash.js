@@ -1,5 +1,5 @@
 const { argv } = require('yargs'); // eslint-disable-line
-const moment = require('moment');
+const { parse } = require('date-fns');
 const Logger = require('logger');
 const connectToDB = require('../utils/connect-to-db');
 const models = require('../models');
@@ -12,7 +12,7 @@ const { trashDir } = argv;
 async function makePostObject(filename, fileContent) {
   Logger.log('Processing post', filename);
 
-  const createdAt = moment.utc(filename, 'YYYYMMDD_HHmmss').toDate();
+  const createdAt = parse(filename, 'yyyyMMdd_HHmmss').toDate();
   const body = await reuploadImages(fileContent);
 
   return {

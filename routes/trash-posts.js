@@ -1,7 +1,12 @@
 const express = require('express');
-const moment = require('moment');
 const HttpStatus = require('http-status-codes');
 const random = require('random');
+const {
+  parse,
+  sub,
+  startOfSecond,
+  endOfSecond,
+} = require('date-fns');
 
 const models = require('../models');
 const Guard = require('../middlewares/guard');
@@ -14,11 +19,13 @@ router.get('/', async (req, res, next) => {
     const filter = {};
 
     if (req.query.permalink) {
-      const createdAt = moment.utc(req.query.permalink, 'YYYYMMDD_HHmmss');
+      const now = new Date();
+      const createdAt = parse(req.query.permalink, 'yyyyMMdd_HHmmss', now);
+      const timezoneOffset = now.getTimezoneOffset();
 
       filter.createdAt = {
-        $gte: createdAt.clone().startOf('second').toDate(),
-        $lte: createdAt.clone().endOf('second').toDate(),
+        $gte: startOfSecond(sub(createdAt, { minutes: timezoneOffset })),
+        $lte: endOfSecond(sub(createdAt, { minutes: timezoneOffset })),
       };
     }
 

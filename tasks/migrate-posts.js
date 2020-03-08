@@ -1,5 +1,4 @@
 const { argv } = require('yargs'); // eslint-disable-line
-const moment = require('moment');
 const Logger = require('logger');
 const connectToDB = require('../utils/connect-to-db');
 const slugifyText = require('../helpers/slugify-text');
@@ -23,7 +22,7 @@ async function makePostObject(filename, postFileContent, tagFiles) {
   const title = postFileContent.match(regexes.title)[1];
   const path = slugifyText(title); // eslint-disable-line
   const body = await reuploadImages(postFileContent.match(regexes.body)[1]);
-  const publishedAt = moment.unix(filename);
+  const publishedAt = new Date(Number(filename) * 1000);
   const tagFile = tagFiles.find(file => file.name === id);
   const tags = tagFile ? tagFile.content.split(',').map(tag => tag.trim()) : [];
 

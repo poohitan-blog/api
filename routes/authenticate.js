@@ -1,8 +1,9 @@
 const express = require('express');
 const util = require('util');
-const moment = require('moment');
+const { add } = require('date-fns');
 const HttpStatus = require('http-status-codes');
 const jwt = require('jsonwebtoken');
+
 const models = require('../models');
 const errorHandler = require('../middlewares/error-handler');
 const config = require('../config').current;
@@ -20,7 +21,7 @@ router.post('/', async (req, res, next) => {
     }
 
     const token = await signToken({ id: user._id }, config.jwtSecret);
-    const expires = moment().add(1, 'weeks').toDate();
+    const expires = add(new Date(), { weeks: 1 });
 
     return res
       .cookie('token', token, { expires, domain: config.cookiesDomain })
