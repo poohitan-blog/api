@@ -51,9 +51,9 @@ router.get('/random', async (req, res, next) => {
   }
 });
 
-router.get('/:trash_post_id', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    const trashPost = await models.trashPost.findOne({ _id: req.params.trash_post_id });
+    const trashPost = await models.trashPost.findOne({ _id: req.params.id });
 
     if (!trashPost) {
       return next({ status: HttpStatus.NOT_FOUND });
@@ -75,10 +75,10 @@ router.post('/', Guard.protectRoute, async (req, res, next) => {
   }
 });
 
-router.patch('/:trash_post_id', Guard.protectRoute, async (req, res, next) => {
+router.patch('/:id', Guard.protectRoute, async (req, res, next) => {
   try {
     const trashPost = await models.trashPost.findOneAndUpdate({
-      _id: req.params.trash_post_id,
+      _id: req.params.id,
     }, req.body, { new: true });
 
     res.json(trashPost.serialize());
@@ -87,9 +87,9 @@ router.patch('/:trash_post_id', Guard.protectRoute, async (req, res, next) => {
   }
 });
 
-router.delete('/:trash_post_id', Guard.protectRoute, async (req, res, next) => {
+router.delete('/:id', Guard.protectRoute, async (req, res, next) => {
   try {
-    await models.trashPost.delete({ _id: req.params.trash_post_id });
+    await models.trashPost.delete({ _id: req.params.id });
 
     res.json({});
   } catch (error) {

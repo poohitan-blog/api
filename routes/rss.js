@@ -29,7 +29,7 @@ router.get('/', async (req, res, next) => {
     docs.forEach(post => feed.item({
       title: post.title,
       description: post.getCutBody(),
-      url: `${config.clientURL}/p/${post.path}`,
+      url: `${config.clientURL}/p/${post.slug}`,
       guid: post._id,
       date: post.publishedAt,
     }));

@@ -26,9 +26,9 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:post_translation_id', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    const postTranslation = await models.postTranslation.findOne({ _id: req.params.post_translation_id });
+    const postTranslation = await models.postTranslation.findOne({ _id: req.params.id });
 
     if (!postTranslation) {
       return next({ status: HttpStatus.NOT_FOUND });
@@ -50,10 +50,10 @@ router.post('/', Guard.protectRoute, async (req, res, next) => {
   }
 });
 
-router.patch('/:post_translation_id', Guard.protectRoute, async (req, res, next) => {
+router.patch('/:id', Guard.protectRoute, async (req, res, next) => {
   try {
     const postTranslation = await models.postTranslation.findOneAndUpdate({
-      _id: req.params.post_translation_id,
+      _id: req.params.id,
     }, req.body, { new: true });
 
     res.json(postTranslation.serialize());
@@ -62,9 +62,9 @@ router.patch('/:post_translation_id', Guard.protectRoute, async (req, res, next)
   }
 });
 
-router.delete('/:post_translation_id', Guard.protectRoute, async (req, res, next) => {
+router.delete('/:id', Guard.protectRoute, async (req, res, next) => {
   try {
-    await models.postTranslation.delete({ _id: req.params.post_translation_id });
+    await models.postTranslation.delete({ _id: req.params.id });
 
     res.json({});
   } catch (error) {
