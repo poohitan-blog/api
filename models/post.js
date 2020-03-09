@@ -40,7 +40,7 @@ module.exports = model('Post', {
   middlewares: {
     save: {
       pre() {
-        this.slug = this.slug || slugifyText(this.title);
+        this.slug = (this.slug || slugifyText(this.title)).trim();
       },
     },
   },

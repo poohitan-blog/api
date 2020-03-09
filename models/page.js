@@ -22,7 +22,7 @@ module.exports = model('Page', {
   middlewares: {
     save: {
       pre() {
-        this.slug = this.slug || (this.title ? slugifyText(this.title) : this._id);
+        this.slug = (this.slug || (this.title ? slugifyText(this.title) : this._id)).trim();
       },
     },
   },
