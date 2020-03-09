@@ -40,7 +40,6 @@
     "isbot": "^2.5.7",
     "jsonwebtoken": "^8.1.0",
     "logger": "git+https://github.com/poohitan-blog/logger.git",
-    "moment": "^2.20.1",
     "mongoose": "^5.7.5",
     "mongoose-delete": "^0.4.0",
     "mongoose-paginate": "^5.0.3",
