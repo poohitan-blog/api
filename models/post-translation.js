@@ -5,7 +5,7 @@ module.exports = model('PostTranslation', {
   description: { type: String, default: '' },
   body: { type: String, default: '' },
   lang: { type: String, default: '' },
-  private: { type: Boolean, default: false },
+  hidden: { type: Boolean, default: false },
 }, {
   indexes: [
     [

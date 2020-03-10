@@ -5,7 +5,7 @@ module.exports = model('Page', {
   title: { type: String, default: '' },
   body: { type: String, default: '' },
   slug: { type: String, index: true, unique: true },
-  private: { type: Boolean, default: false },
+  hidden: { type: Boolean, default: false },
   customStyles: { type: String, default: '' },
   customStylesProcessed: { type: String, default: '' },
 }, {

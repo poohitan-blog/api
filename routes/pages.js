@@ -9,7 +9,7 @@ const renderSass = require('../utils/render-sass');
 
 const router = express.Router();
 
-router.get('/', Guard.protectPrivateData, async (req, res, next) => {
+router.get('/', Guard.excludeHiddenData, async (req, res, next) => {
   try {
     const filter = generateQueryFilter({ model: models.page, query: req.query });
 
