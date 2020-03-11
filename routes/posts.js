@@ -10,7 +10,7 @@ const renderSass = require('../utils/render-sass');
 
 const router = express.Router();
 
-router.get('/', Guard.protectPrivateData, async (req, res, next) => {
+router.get('/', Guard.excludeHiddenData, async (req, res, next) => {
   try {
     const filter = generateQueryFilter({ model: models.page, query: req.query });
 
@@ -28,7 +28,7 @@ router.get('/', Guard.protectPrivateData, async (req, res, next) => {
         populate: {
           path: 'translations',
           select: 'title lang -_id',
-          match: req.isAuthenticated ? null : { private: false },
+          match: req.isAuthenticated ? null : { hidden: false },
         },
       });
 
@@ -107,7 +107,7 @@ router.get('/:slug/similar', async (req, res, next) => {
             $in: tags,
           },
         },
-        private: false,
+        hidden: false,
       })
       .sort('-views')
       .select('title body slug views publishedAt tags');

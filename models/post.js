@@ -10,7 +10,7 @@ module.exports = model('Post', {
   slug: { type: String, index: true, unique: true },
   tags: { type: [String], default: [] },
   views: { type: Number, default: 0 },
-  private: { type: Boolean, default: false },
+  hidden: { type: Boolean, default: false },
   customStyles: { type: String, default: '' },
   customStylesProcessed: { type: String, default: '' },
   imagesWidth: Number,

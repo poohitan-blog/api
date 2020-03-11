@@ -33,7 +33,7 @@ router.get('/', async (req, res, next) => {
   const filter = {};
 
   if (!req.isAuthenticated) {
-    filter.private = false;
+    filter.hidden = false;
   }
 
   try {

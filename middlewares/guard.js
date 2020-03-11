@@ -8,17 +8,17 @@ function protectRoute(req, res, next) {
   return next();
 }
 
-function protectPrivateData(req, res, next) {
+function excludeHiddenData(req, res, next) {
   const { query } = req;
 
-  if (query.private === true && !req.isAuthenticated) {
+  if (query.hidden === true && !req.isAuthenticated) {
     next({ status: HttpStatus.UNAUTHORIZED });
 
     return;
   }
 
   if (!req.isAuthenticated) {
-    query.private = false;
+    query.hidden = false;
   }
 
   next();
@@ -26,5 +26,5 @@ function protectPrivateData(req, res, next) {
 
 module.exports = {
   protectRoute,
-  protectPrivateData,
+  excludeHiddenData,
 };
