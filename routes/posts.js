@@ -24,7 +24,7 @@ router.get('/', Guard.excludeHiddenData, async (req, res, next) => {
         page,
         limit,
         sort: '-publishedAt',
-        select: 'title body slug tags hidden publishedAt -_id',
+        select: 'title body slug tags views hidden publishedAt -_id',
         populate: {
           path: 'translations',
           select: 'title lang -_id',
