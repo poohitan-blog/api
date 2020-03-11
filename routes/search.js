@@ -5,17 +5,18 @@ const errorHandler = require('../middlewares/error-handler');
 
 const router = express.Router();
 
-function searchText(model, query, additionalFields = {}) {
+function searchText(model, query, { filter = {}, select = '' }) {
   const findParams = {
     $text: { $search: `${query}` },
     deleted: false,
-    ...additionalFields,
+    ...filter,
   };
 
   return model
     .find(findParams, {
       score: { $meta: 'textScore' },
     })
+    .select(select)
     .sort({
       score: { $meta: 'textScore' },
     });
@@ -30,17 +31,13 @@ router.get('/', async (req, res, next) => {
     return;
   }
 
-  const filter = {};
-
-  if (!req.isAuthenticated) {
-    filter.hidden = false;
-  }
+  const filter = req.isAuthenticated ? {} : { hidden: false };
 
   try {
     const [posts, pages, trashPosts] = await Promise.all([
-      searchText(models.post, query, filter),
-      searchText(models.page, query, filter),
-      searchText(models.trashPost, query),
+      searchText(models.post, query, { filter, select: 'title description body slug tags publishedAt' }),
+      searchText(models.page, query, { filter, select: 'title body slug createdAt' }),
+      searchText(models.trashPost, query, { select: 'body createdAt' }),
     ]);
 
     const postsSearchResults = posts.map(value => ({ searchResultType: 'post', ...value.serialize() }));

@@ -68,8 +68,12 @@ router.get('/:slug', async (req, res, next) => {
         }, {
           new: true,
         })
-        .select('-customStyles')
-        .populate('translations');
+        .select('title description body slug tags customStylesProcessed imagesWidth publishedAt -_id')
+        .populate({
+          path: 'translations',
+          select: 'title description body lang -_id',
+          match: { hidden: false },
+        });
 
     const commentsCount = await getCommentsCount(req.params.slug);
     const postWithCommentsCount = {
