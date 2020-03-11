@@ -24,7 +24,7 @@ router.get('/', Guard.excludeHiddenData, async (req, res, next) => {
         page,
         limit,
         sort: '-publishedAt',
-        select: '-customStyles -customStylesProcessed',
+        select: 'title body slug tags hidden publishedAt -_id',
         populate: {
           path: 'translations',
           select: 'title lang -_id',
@@ -110,7 +110,7 @@ router.get('/:slug/similar', async (req, res, next) => {
         hidden: false,
       })
       .sort('-views')
-      .select('title body slug views publishedAt tags');
+      .select('title body slug publishedAt');
 
     const mainImageUrlRegex = /src=\\?"(\S+?)\\?"/;
 
@@ -121,7 +121,6 @@ router.get('/:slug/similar', async (req, res, next) => {
       const image = matches ? matches[1] : null;
 
       return {
-        id: _id,
         image,
         ...rest,
       };
