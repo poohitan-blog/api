@@ -5,7 +5,7 @@ const config = require('../config').current;
 
 module.exports = (error, req, res, next) => { // eslint-disable-line
   const serializedError = serializeError(error);
-  const status = error.status || HttpStatus.getStatusCode(error.message) || HttpStatus.INTERNAL_SERVER_ERROR;
+  const status = error.status || HttpStatus.INTERNAL_SERVER_ERROR;
 
   Logger.error(serializedError);
 

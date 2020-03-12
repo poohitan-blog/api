@@ -24,10 +24,10 @@ router.get('/', Guard.excludeHiddenData, async (req, res, next) => {
         page,
         limit,
         sort: '-publishedAt',
-        select: 'title body slug tags views hidden publishedAt -_id',
+        select: 'title body slug tags views hidden publishedAt',
         populate: {
           path: 'translations',
-          select: 'title lang -_id',
+          select: 'title lang',
           match: req.isAuthenticated ? null : { hidden: false },
         },
       });
@@ -68,22 +68,22 @@ router.get('/:slug', async (req, res, next) => {
         }, {
           new: true,
         })
-        .select('title description body slug tags customStylesProcessed imagesWidth publishedAt -_id')
+        .select('title description body slug tags customStylesProcessed imagesWidth publishedAt')
         .populate({
           path: 'translations',
-          select: 'title description body lang -_id',
+          select: 'title description body lang',
           match: { hidden: false },
         });
+
+    if (!post) {
+      return next({ status: HttpStatus.NOT_FOUND });
+    }
 
     const commentsCount = await getCommentsCount(req.params.slug);
     const postWithCommentsCount = {
       ...post.serialize(),
       commentsCount,
     };
-
-    if (!post) {
-      return next({ status: HttpStatus.NOT_FOUND });
-    }
 
     return res.json(postWithCommentsCount);
   } catch (error) {

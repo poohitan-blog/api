@@ -18,7 +18,7 @@ router.get('/', Guard.excludeHiddenData, async (req, res, next) => {
       page,
       limit,
       sort: '-createdAt',
-      select: '-customStyles -customStylesProcessed -_id',
+      select: '-customStyles -customStylesProcessed',
     });
 
     res.json({
@@ -32,7 +32,7 @@ router.get('/', Guard.excludeHiddenData, async (req, res, next) => {
 
 router.get('/:slug', async (req, res, next) => {
   try {
-    const page = await models.page.findOne({ slug: req.params.slug }).select('-_id');
+    const page = await models.page.findOne({ slug: req.params.slug });
 
     if (!page) {
       return next({ status: HttpStatus.NOT_FOUND });
