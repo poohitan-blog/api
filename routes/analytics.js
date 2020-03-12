@@ -95,6 +95,14 @@ router.post('/flow', async (req, res, next) => {
   try {
     const body = JSON.parse(req.body);
 
+    const atLeastOneItemHasPath = body.some(item => item.path);
+
+    if (!atLeastOneItemHasPath) {
+      next({ status: HttpStatus.BAD_REQUEST });
+
+      return;
+    }
+
     const flow = body.reduce((accumulator, item, index, collection) => {
       const nextItem = collection[index + 1];
       const prevItem = collection[index - 1];
@@ -103,7 +111,10 @@ router.post('/flow', async (req, res, next) => {
         return accumulator;
       }
 
-      if (prevItem && prevItem.path === item.path) {
+      const missingPath = !item.path;
+      const duplicatePath = prevItem && prevItem.path === item.path;
+
+      if (missingPath || duplicatePath) {
         return [
           ...accumulator.slice(0, -1),
           {
@@ -127,8 +138,8 @@ router.post('/flow', async (req, res, next) => {
       ];
     }, []);
 
-    if (flow.length <= 0) {
-      res.sendStatus(HttpStatus.BAD_REQUEST);
+    if (flow.length === 0) {
+      next({ status: HttpStatus.BAD_REQUEST });
 
       return;
     }

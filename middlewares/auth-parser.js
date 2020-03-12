@@ -11,7 +11,9 @@ module.exports = async (req, res, next) => {
   req.isAuthenticated = false;
 
   if (!token) {
-    return next();
+    next();
+
+    return;
   }
 
   try {
@@ -20,9 +22,9 @@ module.exports = async (req, res, next) => {
     req.userId = id;
     req.isAuthenticated = true;
 
-    return next();
+    next();
   } catch (error) {
-    return res
+    res
       .status(HttpStatus.UNAUTHORIZED)
       .clearCookie('token', { domain: config.cookiesDomain })
       .json({ status: HttpStatus.UNAUTHORIZED });
