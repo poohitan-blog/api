@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+console.log('ENVIRONMENT!!', process.env);
+
 const config = {
   development: {
     port: 3100,
