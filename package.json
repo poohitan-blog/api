@@ -7,7 +7,7 @@
     "start": "pm2-dev start app.js",
     "lint": "./node_modules/eslint/bin/eslint.js \"**/*.js\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "node tasks/deploy.js -e production -b master"
+    "deploy": "pm2 deploy production"
   },
   "repository": {
     "type": "git",
@@ -32,7 +32,6 @@
     "cssnano": "^4.1.10",
     "date-fns": "^2.10.0",
     "dotenv": "^8.1.0",
-    "exec-ssh": "git+https://github.com/poohitan-blog/exec-ssh.git",
     "express": "^4.16.2",
     "geoip-lite": "^1.4.0",
     "http-status-codes": "^1.4.0",
