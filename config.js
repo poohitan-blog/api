@@ -63,25 +63,10 @@ const config = {
       'api.poohitan.com',
     ],
 
-    server: {
-      host: '46.101.99.203',
-      username: 'poohitan',
-      folder: '~/poohitan.com/api',
-    },
-
     db: {
       host: 'localhost',
       name: 'poohitan-com',
       port: 27017,
-    },
-
-    git: {
-      repo: 'git@github.com:poohitan-blog/api.git',
-      branch: 'stable',
-    },
-
-    pm2: {
-      appName: 'poohitan-com-api',
     },
 
     digitalOcean: {

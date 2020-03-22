@@ -1,7 +1,5 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
-const geoip = require('geoip-lite');
-const requestIp = require('request-ip');
 const isBot = require('isbot');
 const { formatDistance } = require('date-fns');
 const { uk } = require('date-fns/locale');
@@ -9,6 +7,7 @@ const { uk } = require('date-fns/locale');
 const { current } = require('../config');
 const Telegram = require('../services/telegram');
 const errorHandler = require('../middlewares/error-handler');
+const requestLocator = require('../middlewares/request-locator');
 
 const router = express.Router();
 
@@ -54,19 +53,10 @@ router.use((req, res, next) => {
     return;
   }
 
-  const ip = requestIp.getClientIp(req);
-  const { country, city, ll = [] } = geoip.lookup(ip) || {};
-  const [longitude = 0, latitude = 0] = ll;
-
-  req.geolocation = {
-    country,
-    city,
-    longitude,
-    latitude,
-  };
-
   next();
 });
+
+router.use(requestLocator);
 
 router.post('/page-view', async (req, res, next) => {
   try {
