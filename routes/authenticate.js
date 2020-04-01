@@ -1,6 +1,7 @@
 const express = require('express');
 const util = require('util');
 const argon2 = require('argon2');
+const slowDown = require('express-slow-down');
 const { add } = require('date-fns');
 const HttpStatus = require('http-status-codes');
 const jwt = require('jsonwebtoken');
@@ -14,7 +15,13 @@ const config = require('../config').current;
 const signToken = util.promisify(jwt.sign);
 const router = express.Router();
 
-router.post('/', requestLocator, async (req, res, next) => {
+const speedLimiter = slowDown({
+  windowMs: 5 * 60 * 1000,
+  delayAfter: 20,
+  delayMs: 1000,
+});
+
+router.post('/', requestLocator, speedLimiter, async (req, res, next) => {
   try {
     const { login, password } = req.body;
     const user = await models.user.findOne({ login });
