@@ -1,4 +1,4 @@
-const { argv } = require('yargs'); // eslint-disable-line
+const { argv } = require('yargs');
 const request = require('request');
 const Logger = require('logger');
 
