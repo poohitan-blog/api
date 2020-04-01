@@ -1,4 +1,4 @@
-const { argv } = require('yargs'); // eslint-disable-line
+const { argv } = require('yargs');
 const Logger = require('logger');
 const connectToDB = require('../utils/connect-to-db');
 const slugifyText = require('../helpers/slugify-text');
