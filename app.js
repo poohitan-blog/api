@@ -25,6 +25,8 @@ app.use(Logger.request);
 app.use(corsHandler);
 app.use(authParser);
 
+app.enable('trust proxy');
+
 app.get('/', (req, res) => {
   res.send('Ну привіт.');
 });
