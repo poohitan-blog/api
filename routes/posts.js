@@ -114,7 +114,7 @@ router.get('/:slug/similar', async (req, res, next) => {
         hidden: false,
       })
       .sort('-views')
-      .select('title body slug publishedAt');
+      .select('title description body slug publishedAt');
 
     const mainImageUrlRegex = /src=\\?"(\S+?)\\?"/;
 
