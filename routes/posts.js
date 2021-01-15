@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get('/', Guard.excludeHiddenData, async (req, res, next) => {
   try {
-    const filter = generateQueryFilter({ model: models.page, query: req.query });
+    const filter = generateQueryFilter({ model: models.post, query: req.query });
 
     if (req.query.tag) {
       filter.tags = req.query.tag;
