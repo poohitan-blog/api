@@ -5,4 +5,5 @@ module.exports = model('User', {
   email: { type: String, index: true },
   password: { type: String },
   role: { type: String, default: 'user' },
+  isAlive: { type: Boolean, default: true },
 });
