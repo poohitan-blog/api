@@ -1,6 +1,7 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
 const random = require('random');
+const validateUUID = require('uuid-validate');
 const {
   parse,
   sub,
@@ -60,7 +61,10 @@ router.get('/random', async (req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const trashPost = await models.trashPost.findOne({ _id: req.params.id });
+    const { id } = req.params;
+    const isUUID = validateUUID(id);
+    const fieldName = isUUID ? '_id' : 'shortId';
+    const trashPost = await models.trashPost.findOne({ [fieldName]: id });
 
     if (!trashPost) {
       return next({ status: HttpStatus.NOT_FOUND });
