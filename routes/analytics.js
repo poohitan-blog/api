@@ -102,7 +102,7 @@ router.post('/flow', async (req, res, next) => {
       }
 
       const missingPath = !item.path;
-      const duplicatePath = prevItem && prevItem.path === item.path;
+      const duplicatePath = prevItem?.path === item.path;
 
       if (missingPath || duplicatePath) {
         return [

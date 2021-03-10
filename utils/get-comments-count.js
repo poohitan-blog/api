@@ -25,7 +25,7 @@ async function fetchDataFromDisqus(previousData = {}, cursor) {
       ...accumulator,
     }), result), previousData);
 
-  if (response.cursor && response.cursor.hasNext) {
+  if (response.cursor?.hasNext) {
     return fetchDataFromDisqus(commentsCountByPost, response.cursor.next);
   }
 
