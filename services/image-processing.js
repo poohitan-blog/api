@@ -1,6 +1,4 @@
 const sharp = require('sharp');
-const util = require('util');
-const calculateAverageColor = util.promisify(require('image-average-color'));
 const ColorConvert = require('color-convert');
 
 const ComputerVision = require('./azure/computer-vision');
@@ -15,9 +13,10 @@ async function getMetadata(file) {
 }
 
 async function getAverageColor(file) {
-  const averageColor = await calculateAverageColor(file);
+  const { channels } = await sharp(file).stats();
+  const average = channels.map((channel) => channel.mean);
 
-  return averageColor ? ColorConvert.rgb.hex(averageColor) : null;
+  return ColorConvert.rgb.hex(average);
 }
 
 async function getCaption(url) {

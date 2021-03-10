@@ -25,7 +25,7 @@ router.get('/', async (req, res, next) => {
       sort: '-publishedAt',
     });
 
-    docs.forEach(post => feed.item({
+    docs.forEach((post) => feed.item({
       title: post.title,
       description: post.getCutBody(),
       url: `${config.clientURL}/p/${post.slug}`,

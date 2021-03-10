@@ -6,15 +6,18 @@ const util = require('util');
 
 const render = util.promisify(nodeSass.render);
 
-module.exports = function renderSass(sass) {
+module.exports = async function renderSass(sass) {
   if (!sass) {
     return '';
   }
 
-  return render({
-    data: sass,
-  })
-    .then(result => result.css.toString())
-    .then(css => postcss([autoprefixer, cssnano]).process(css))
-    .then(result => result.css);
+  try {
+    const { css } = await render({ data: sass });
+    const { css: optimizedCss } = await postcss([autoprefixer, cssnano])
+      .process(css, { from: undefined });
+
+    return optimizedCss;
+  } catch (error) {
+    return '';
+  }
 };

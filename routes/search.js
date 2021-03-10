@@ -40,9 +40,9 @@ router.get('/', async (req, res, next) => {
       searchText(models.trashPost, query, { select: 'body createdAt' }),
     ]);
 
-    const postsSearchResults = posts.map(value => ({ searchResultType: 'post', ...value.serialize() }));
-    const pagesSearchResults = pages.map(value => ({ searchResultType: 'page', ...value.serialize() }));
-    const trashPostsSearchResults = trashPosts.map(value => ({ searchResultType: 'trashPost', ...value.serialize() }));
+    const postsSearchResults = posts.map((value) => ({ searchResultType: 'post', ...value.serialize() }));
+    const pagesSearchResults = pages.map((value) => ({ searchResultType: 'page', ...value.serialize() }));
+    const trashPostsSearchResults = trashPosts.map((value) => ({ searchResultType: 'trashPost', ...value.serialize() }));
 
     const searchResults = [
       ...postsSearchResults,

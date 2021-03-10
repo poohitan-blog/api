@@ -29,7 +29,6 @@ ${geolocationString}`);
     .map((char, index) => (index < 2 || index > password.length - 3 ? char : '*'))
     .join('');
 
-
   Telegram.sendMessage(`<b>Якийсь покидьок намагається підібрати пароль!</b>
 
 Його спроба: <pre>${encodedPassword}</pre> (див. серверні логи)

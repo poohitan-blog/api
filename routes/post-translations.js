@@ -18,7 +18,7 @@ router.get('/', async (req, res, next) => {
     });
 
     res.json({
-      docs: docs.map(doc => doc.serialize()),
+      docs: docs.map((doc) => doc.serialize()),
       meta: { currentPage: page, totalPages: pages },
     });
   } catch (error) {

@@ -53,11 +53,11 @@ const VIEWS_FROM_GOOGLE_ANALYTICS = {
 
 connectToDB()
   .then(() => models.post.find())
-  .then(posts => Promise.all(posts.map(post => models.post.findOneAndUpdate({
+  .then((posts) => Promise.all(posts.map((post) => models.post.findOneAndUpdate({
     path: post.path,
   }, {
     views: VIEWS_FROM_GOOGLE_ANALYTICS[post.path] || 0,
   }))))
   .then(() => Logger.success('Successfully migrated'))
-  .catch(error => Logger.error(error))
+  .catch((error) => Logger.error(error))
   .then(() => process.exit());

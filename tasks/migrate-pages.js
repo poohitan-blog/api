@@ -26,13 +26,13 @@ async function makePageObject(filename, fileContent) {
 
 connectToDB()
   .then(() => readDir(pagesDir))
-  .then(pageFiles => pageFiles.reduce((promiseChain, file) => promiseChain.then(() => {
+  .then((pageFiles) => pageFiles.reduce((promiseChain, file) => promiseChain.then(() => {
     const { name, content } = file;
 
     return makePageObject(name, content)
-      .then(page => models.page.create(page))
+      .then((page) => models.page.create(page))
       .catch(() => Logger.error(`Failed to migrate ${name} page. You should migrate it manually.`));
   }), Promise.resolve()))
   .then(() => Logger.success('Successfully migrated pages'))
-  .catch(error => Logger.error(error))
+  .catch((error) => Logger.error(error))
   .then(() => process.exit());

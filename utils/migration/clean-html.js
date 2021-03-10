@@ -1,4 +1,4 @@
-module.exports = html => html
+module.exports = (html) => html
   .replace(/<br><br>/g, '</p><p>')
   .replace(/<br>/g, '')
   .replace(/\\'/g, '\'')

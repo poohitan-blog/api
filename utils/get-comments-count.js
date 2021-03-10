@@ -1,5 +1,4 @@
-const util = require('util');
-const request = util.promisify(require('request'));
+const got = require('got');
 const Logger = require('logger');
 const { current } = require('../config');
 
@@ -18,16 +17,16 @@ async function fetchDataFromDisqus(previousData = {}, cursor) {
     cursor,
   };
 
-  const { body } = await request({ url, qs: query, json: true });
+  const response = await got(url, { searchParams: query }).json();
 
-  const commentsCountByPost = body.response.reduce((result, thread) => thread.identifiers
+  const commentsCountByPost = response.response.reduce((result, thread) => thread.identifiers
     .reduce((accumulator, identifier) => ({
       [identifier]: thread.posts,
       ...accumulator,
     }), result), previousData);
 
-  if (body.cursor && body.cursor.hasNext) {
-    return fetchDataFromDisqus(commentsCountByPost, body.cursor.next);
+  if (response.cursor && response.cursor.hasNext) {
+    return fetchDataFromDisqus(commentsCountByPost, response.cursor.next);
   }
 
   return commentsCountByPost;
@@ -67,15 +66,14 @@ async function getCommentsCountForSinglePost(postSlug) {
 }
 
 async function getCommentsCountForManyPosts(postSlugs) {
-  return postSlugs.reduce((promise, postSlug) =>
-    promise.then(async (commentsCounts) => {
-      const commentsCount = await getCommentsCountForSinglePost(postSlug);
+  return postSlugs.reduce((promise, postSlug) => promise.then(async (commentsCounts) => {
+    const commentsCount = await getCommentsCountForSinglePost(postSlug);
 
-      return {
-        [postSlug]: commentsCount,
-        ...commentsCounts,
-      };
-    }), Promise.resolve({}));
+    return {
+      [postSlug]: commentsCount,
+      ...commentsCounts,
+    };
+  }), Promise.resolve({}));
 }
 
 async function getCommentsCount(param) {

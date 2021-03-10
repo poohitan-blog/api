@@ -23,8 +23,8 @@ async function makePostObject(filename, postFileContent, tagFiles) {
   const path = slugifyText(title); // eslint-disable-line
   const body = await reuploadImages(postFileContent.match(regexes.body)[1]);
   const publishedAt = new Date(Number(filename) * 1000);
-  const tagFile = tagFiles.find(file => file.name === id);
-  const tags = tagFile ? tagFile.content.split(',').map(tag => tag.trim()) : [];
+  const tagFile = tagFiles.find((file) => file.name === id);
+  const tags = tagFile ? tagFile.content.split(',').map((tag) => tag.trim()) : [];
 
   return {
     title,
@@ -44,9 +44,9 @@ connectToDB()
     const { name, content } = file;
 
     return makePostObject(name, content, tagFiles)
-      .then(post => models.post.create(post))
+      .then((post) => models.post.create(post))
       .catch(() => Logger.error(`Failed to migrate ${name} post. You should migrate it manually.`));
   }), Promise.resolve()))
   .then(() => Logger.success('Successfully migrated posts'))
-  .catch(error => Logger.error(error))
+  .catch((error) => Logger.error(error))
   .then(() => process.exit());

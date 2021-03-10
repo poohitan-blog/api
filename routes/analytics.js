@@ -85,7 +85,7 @@ router.post('/flow', async (req, res, next) => {
   try {
     const body = JSON.parse(req.body);
 
-    const atLeastOneItemHasPath = body.some(item => item.path);
+    const atLeastOneItemHasPath = body.some((item) => item.path);
 
     if (!atLeastOneItemHasPath) {
       next({ status: HttpStatus.BAD_REQUEST });

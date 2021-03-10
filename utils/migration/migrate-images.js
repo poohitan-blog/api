@@ -1,4 +1,5 @@
-const request = require('request');
+const got = require('got');
+const FormData = require('form-data');
 const Logger = require('logger');
 const config = require('../../config').current;
 
@@ -18,13 +19,14 @@ function getImagesFromHTML(html) {
 
 function uploadImage(stream) {
   return new Promise((resolve, reject) => {
-    stream.on('error', error => reject(error));
+    stream.on('error', (error) => reject(error));
 
-    request.post({
-      url: `${config.apiURL}/images`,
-      formData: {
-        images: stream,
-      },
+    const form = new FormData();
+
+    form.append('images', stream);
+
+    got.post(`${config.apiURL}/images`, {
+      body: form,
       headers: {
         Connection: 'keep-alive',
       },
@@ -42,14 +44,10 @@ function uploadImage(stream) {
   });
 }
 
-function downloadImage(link) {
-  Logger.log('Downloading', link);
+function downloadImage(url) {
+  Logger.log('Downloading', url);
 
-  return request({
-    url: link,
-    encoding: null,
-    timeout: 10000,
-  });
+  return got(url, { timeout: 10000 }).buffer();
 }
 
 module.exports = (html) => {
