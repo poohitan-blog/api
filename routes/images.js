@@ -49,11 +49,11 @@ async function processImage(file, filename, contentType, { analyze }) {
 
   const [metadata, averageColor, caption] = await Promise.all([
     ImageProcessing.getMetadata(file)
-      .catch(error => Logger.error(error)),
+      .catch((error) => Logger.error(error)),
     ImageProcessing.getAverageColor(file)
-      .catch(error => Logger.error(error)),
+      .catch((error) => Logger.error(error)),
     ImageProcessing.getCaption(url)
-      .catch(error => Logger.error(error)),
+      .catch((error) => Logger.error(error)),
   ]);
 
   const { width, height } = metadata;
@@ -82,7 +82,7 @@ function manageUpload(req, { analyze = false } = {}) {
     busboy.on('file', (fieldname, file, filename, encoding, mimeType) => {
       const chunks = [];
 
-      file.on('data', chunk => chunks.push(chunk));
+      file.on('data', (chunk) => chunks.push(chunk));
       file.on('end', () => {
         const buffer = Buffer.concat(chunks);
 
@@ -95,7 +95,7 @@ function manageUpload(req, { analyze = false } = {}) {
         const uploadResults = await Promise.all(uploads);
 
         const images = uploadResults
-          .filter(item => item.url);
+          .filter((item) => item.url);
 
         resolve(images);
       } catch (error) {
@@ -111,7 +111,7 @@ router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
     const images = await manageUpload(req);
 
-    res.json(images.map(image => image.url));
+    res.json(images.map((image) => image.url));
   } catch (error) {
     next(error);
   }

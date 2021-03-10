@@ -39,7 +39,7 @@ module.exports = (modelName, fields, { indexes = [], methods = {}, middlewares =
     });
   });
 
-  indexes.forEach(index => schema.index(...index));
+  indexes.forEach((index) => schema.index(...index));
 
   return mongoose.model(modelName, schema);
 };

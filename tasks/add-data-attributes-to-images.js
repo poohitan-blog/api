@@ -1,5 +1,5 @@
 const { argv } = require('yargs');
-const request = require('request');
+const got = require('got');
 const Logger = require('logger');
 
 const connectToDB = require('../utils/connect-to-db');
@@ -22,27 +22,15 @@ function getImagesFromHTML(html) {
   return images;
 }
 
-function downloadImage(link) {
-  return new Promise((resolve, reject) => {
-    Logger.log('Downloading', link);
+function downloadImage(url) {
+  Logger.log('Downloading', url);
 
-    request({
-      url: link,
-      encoding: null,
-      timeout: 10000,
-    }, (error, response, body) => {
-      if (error) {
-        return reject(error);
-      }
-
-      return resolve(body);
-    });
-  });
+  return got(url, { timeout: 10000 }).buffer();
 }
 
 function processOneImage(imageLink) {
   return downloadImage(imageLink)
-    .then(image => ImageProcessing.getMetadata(image))
+    .then((image) => ImageProcessing.getMetadata(image))
     .then((metadata) => {
       const { width, height, averageColor } = metadata;
 
@@ -61,7 +49,7 @@ async function processOnePost(post) {
 
   const translations = await models.postTranslation.find({ _id: { $in: post.translations } });
 
-  const translationBodies = translations.map(translation => translation.body);
+  const translationBodies = translations.map((translation) => translation.body);
   const allBodies = [post.body, ...translationBodies];
 
   const imageLinks = getImagesFromHTML(allBodies.join(''))
@@ -82,10 +70,10 @@ async function processOnePost(post) {
           translation.body = injectMetadata(translation.body, imageLink, { width, height, averageColor }); // eslint-disable-line
         });
       })
-      .catch(error => Logger.error(error))), Promise.resolve())
+      .catch((error) => Logger.error(error))), Promise.resolve())
     .then(() => Promise.all([
       post.save(),
-      ...translations.map(translation => translation.save()),
+      ...translations.map((translation) => translation.save()),
     ]))
     .then(() => Logger.success(`Finished processing post "${post.title}"`));
 }
@@ -106,7 +94,7 @@ function processOneTrashPost(trashPost) {
       .then(({ width, height, averageColor }) => {
         trashPost.body = injectMetadata(trashPost.body, imageLink, { width, height, averageColor }); // eslint-disable-line
       })
-      .catch(error => Logger.error(error))), Promise.resolve())
+      .catch((error) => Logger.error(error))), Promise.resolve())
     .then(() => Promise.all([
       trashPost.save(),
     ]))
@@ -120,7 +108,9 @@ connectToDB()
 
       return trashPosts.reduce((postsPromiseChain, trashPost) => postsPromiseChain
         .then(() => processOneTrashPost(trashPost)), Promise.resolve());
-    } else if (postPath) {
+    }
+
+    if (postPath) {
       const posts = await models.post.find({ path: postPath });
 
       return posts.reduce((postsPromiseChain, post) => postsPromiseChain
@@ -129,5 +119,5 @@ connectToDB()
 
     return Promise.resolve();
   })
-  .catch(error => Logger.error(error))
+  .catch((error) => Logger.error(error))
   .then(() => process.exit(0));

@@ -1,6 +1,6 @@
 const parseDomain = require('parse-domain');
-const config = require('../config').current;
 const HttpStatus = require('http-status-codes');
+const config = require('../config').current;
 
 const allowedHeaders = [
   'Origin',

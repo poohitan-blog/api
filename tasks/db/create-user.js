@@ -10,5 +10,5 @@ connectToDB()
     role: 'admin',
   }))
   .then(() => Logger.success('Successfully created a user'))
-  .catch(error => Logger.error(error))
+  .catch((error) => Logger.error(error))
   .then(() => process.exit());

@@ -1,5 +1,5 @@
 const parseDomain = require('parse-domain');
-const request = require('request');
+const got = require('got');
 const config = require('../config').current;
 
 module.exports = (req, res, next) => {
@@ -16,5 +16,5 @@ module.exports = (req, res, next) => {
     return next();
   }
 
-  return req.pipe(request(`${config.apiURL}/static/images/hotlinking-denied.png`)).pipe(res);
+  return req.pipe(got.stream(`${config.apiURL}/static/images/hotlinking-denied.png`)).pipe(res);
 };

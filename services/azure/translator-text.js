@@ -1,5 +1,5 @@
 const uuid = require('uuid');
-const request = require('request-promise-native');
+const got = require('got');
 const Logger = require('logger');
 
 const config = require('../../config').current;
@@ -7,29 +7,27 @@ const config = require('../../config').current;
 const { endpoint, key } = config.microsoft.azure.translatorText;
 
 async function translate(text, { to = 'uk' } = {}) {
+  const url = `${endpoint}/translate`;
+
   const options = {
-    method: 'POST',
-    baseUrl: endpoint,
-    url: 'translate',
-    qs: {
+    searchParams: {
       'api-version': '3.0',
-      to: [to],
+      to,
     },
     headers: {
       'Ocp-Apim-Subscription-Key': key,
       'Content-type': 'application/json',
       'X-ClientTraceId': uuid.v4().toString(),
     },
-    body: [{
+    json: [{
       text,
     }],
-    json: true,
   };
 
   try {
-    const body = await request(options);
+    const response = await got.post(url, options).json();
 
-    const [{ translations }] = body;
+    const [{ translations }] = response;
     const [translation] = translations;
 
     return translation.text;

@@ -23,13 +23,13 @@ async function makePostObject(filename, fileContent) {
 
 connectToDB()
   .then(() => readDir(trashDir))
-  .then(trashPostFiles => trashPostFiles.reduce((promiseChain, file) => promiseChain.then(() => {
+  .then((trashPostFiles) => trashPostFiles.reduce((promiseChain, file) => promiseChain.then(() => {
     const { name, content } = file;
 
     return makePostObject(name, content)
-      .then(trashPost => models.trashPost.create(trashPost))
+      .then((trashPost) => models.trashPost.create(trashPost))
       .catch(() => Logger.error(`Failed to migrate ${name} trash post. You should migrate it manually.`));
   }), Promise.resolve()))
   .then(() => Logger.success('Successfully migrated trash'))
-  .catch(error => Logger.error(error))
+  .catch((error) => Logger.error(error))
   .then(() => process.exit());

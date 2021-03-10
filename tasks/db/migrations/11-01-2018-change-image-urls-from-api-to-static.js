@@ -5,7 +5,7 @@ const models = require('../../../models');
 async function updateImageLinks(model) {
   const docs = await model.find();
 
-  return Promise.all(docs.map(doc => model.findOneAndUpdate({
+  return Promise.all(docs.map((doc) => model.findOneAndUpdate({
     _id: doc._id,
   }, {
     body: doc.body.replace(/api\.poohitan\.com/g, 'static.poohitan.com'),
@@ -21,5 +21,5 @@ connectToDB()
     updateImageLinks(models.trashPost),
   ]))
   .then(() => Logger.success('Successfully migrated'))
-  .catch(error => Logger.error(error))
+  .catch((error) => Logger.error(error))
   .then(() => process.exit());

@@ -5,7 +5,7 @@ const generateShortId = require('../../../helpers/generate-shortid');
 
 connectToDB()
   .then(() => models.trashPost.find({}))
-  .then(trashPosts => Promise.all(trashPosts.map((trashPost) => {
+  .then((trashPosts) => Promise.all(trashPosts.map((trashPost) => {
     trashPost.shortId = generateShortId(); // eslint-disable-line
 
     Logger.log(`Adding short id ${trashPost.shortId} to ${trashPost.id}`);
@@ -13,5 +13,5 @@ connectToDB()
     return trashPost.save();
   })))
   .then(() => Logger.success('Successfully migrated'))
-  .catch(error => Logger.error(error))
+  .catch((error) => Logger.error(error))
   .then(() => process.exit());

@@ -81,10 +81,10 @@ async function processOnePost(post) {
       .then(() => new Promise((resolve) => {
         setTimeout(() => resolve(), 3000);
       }))
-      .catch(error => Logger.error(error))), Promise.resolve())
+      .catch((error) => Logger.error(error))), Promise.resolve())
     .then(() => Promise.all([
       post.save(),
-      ...translations.map(translation => translation.save()),
+      ...translations.map((translation) => translation.save()),
     ]))
     .then(() => Logger.success(`Finished processing post "${post.title}"`));
 }
@@ -105,7 +105,7 @@ function processOneTrashPost(trashPost) {
       .then(({ captionEn, captionUk }) => {
         trashPost.body = injectMetadata(trashPost.body, imageLink, { captionEn, captionUk }); // eslint-disable-line
       })
-      .catch(error => Logger.error(error))), Promise.resolve())
+      .catch((error) => Logger.error(error))), Promise.resolve())
     .then(() => trashPost.save())
     .then(() => Logger.success(`Finished processing post ${trashPost._id}`))
     .then(() => new Promise((resolve) => {
@@ -120,7 +120,9 @@ connectToDB()
 
       return trashPosts.reduce((postsPromiseChain, trashPost) => postsPromiseChain
         .then(() => processOneTrashPost(trashPost)), Promise.resolve());
-    } else if (postPath) {
+    }
+
+    if (postPath) {
       const posts = await models.post.find({ path: postPath });
 
       return posts.reduce((postsPromiseChain, post) => postsPromiseChain
@@ -129,5 +131,5 @@ connectToDB()
 
     return Promise.resolve();
   })
-  .catch(error => Logger.error(error))
+  .catch((error) => Logger.error(error))
   .then(() => process.exit(0));

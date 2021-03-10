@@ -32,10 +32,10 @@ router.get('/', Guard.excludeHiddenData, async (req, res, next) => {
         },
       });
 
-    const commentsCounts = await getCommentsCount(docs.map(doc => doc.slug));
+    const commentsCounts = await getCommentsCount(docs.map((doc) => doc.slug));
 
     res.json({
-      docs: docs.map(doc => ({
+      docs: docs.map((doc) => ({
         ...doc.serialize(),
         body: req.query.cut ? doc.getCutBody() : doc.body,
         commentsCount: commentsCounts[doc.slug],

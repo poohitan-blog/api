@@ -11,7 +11,7 @@ router.get('/', async (req, res, next) => {
 
     const tags = posts.reduce((result, post) => result.concat(post.tags), [])
       .filter((tag, index, array) => array.indexOf(tag) === index)
-      .filter(tag => tag);
+      .filter((tag) => tag);
 
     res.json(tags);
   } catch (error) {

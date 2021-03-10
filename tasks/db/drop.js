@@ -11,4 +11,4 @@ connectToDB()
       process.exit();
     });
   })
-  .catch(error => Logger.error(error));
+  .catch((error) => Logger.error(error));
