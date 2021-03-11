@@ -6,7 +6,7 @@ function serialize(data) {
     .reduce((result, fieldName) => {
       const fieldValue = dataToSerialize[fieldName];
 
-      const isReference = fieldValue && fieldValue._id;
+      const isReference = Boolean(fieldValue?._id);
       const isArrayOfReferences = Array.isArray(fieldValue) && fieldValue.some((item) => item._id);
 
       let serializedValue;
