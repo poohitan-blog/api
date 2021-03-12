@@ -37,7 +37,7 @@ router.get('/', async (req, res, next) => {
     const [posts, pages, trashPosts] = await Promise.all([
       searchText(models.post, query, { filter, select: 'title description body slug tags publishedAt' }),
       searchText(models.page, query, { filter, select: 'title body slug createdAt' }),
-      searchText(models.trashPost, query, { select: 'body createdAt' }),
+      searchText(models.trashPost, query, { select: 'shortId body createdAt' }),
     ]);
 
     const postsSearchResults = posts.map((value) => ({ searchResultType: 'post', ...value.serialize() }));
