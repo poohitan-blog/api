@@ -50,7 +50,12 @@ router.post('/', requestLocator, speedLimiter, async (req, res, next) => {
       .cookie('token', token, { expires, domain: config.cookiesDomain })
       .json({
         token,
-        id: user._id,
+        user: {
+          id: user._id,
+          login: user.login,
+          email: user.email,
+          role: user.role,
+        },
       });
   } catch (error) {
     return next(error);
