@@ -67,7 +67,7 @@ async function processImage(file, filename, contentType, { analyze }) {
     metadata: {
       averageColor,
       captionUk,
-      captionEn: caption,
+      captionEn: caption || null,
       originalWidth: width,
       originalHeight: height,
     },
@@ -109,9 +109,10 @@ function manageUpload(req, { analyze = false } = {}) {
 
 router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
-    const images = await manageUpload(req);
+    const { analyze } = req.query;
+    const images = await manageUpload(req, { analyze });
 
-    res.json(images.map((image) => image.url));
+    res.json(images);
   } catch (error) {
     next(error);
   }

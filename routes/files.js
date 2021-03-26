@@ -47,11 +47,13 @@ function manageUpload(req) {
       try {
         const fileKeys = await Promise.all(uploads);
 
-        const proxiedLinks = fileKeys
+        const files = fileKeys
           .filter((key) => key)
-          .map((key) => `${config.staticURL}/${key.replace(`${config.environment}/`, '')}`);
+          .map((key) => ({
+            url: `${config.staticURL}/${key.replace(`${config.environment}/`, '')}`,
+          }));
 
-        resolve(proxiedLinks);
+        resolve(files);
       } catch (error) {
         reject(error);
       }
@@ -63,9 +65,9 @@ function manageUpload(req) {
 
 router.post('/', Guard.protectRoute, async (req, res, next) => {
   try {
-    const links = await manageUpload(req);
+    const files = await manageUpload(req);
 
-    res.json(links);
+    res.json(files);
   } catch (error) {
     next(error);
   }
@@ -73,9 +75,11 @@ router.post('/', Guard.protectRoute, async (req, res, next) => {
 
 router.post('/froala', Guard.protectRoute, async (req, res, next) => {
   try {
-    const [link] = await manageUpload(req);
+    const [file] = await manageUpload(req);
 
-    res.json({ link });
+    res.json({
+      link: file.link,
+    });
   } catch (error) {
     next(error);
   }
