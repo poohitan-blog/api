@@ -6,18 +6,19 @@ const config = require('../config').current;
 const verifyToken = util.promisify(jwt.verify);
 
 module.exports = async (req, res, next) => {
-  const { token } = req.cookies;
+  const { 'session-token': sessionToken } = req.cookies;
 
   req.isAuthenticated = false;
 
-  if (!token) {
+  if (!sessionToken) {
     next();
 
     return;
   }
 
   try {
-    const { id } = await verifyToken(token, config.jwtSecret);
+    const { accessToken } = jwt.decode(sessionToken);
+    const { id } = await verifyToken(accessToken, config.jwtSecret);
 
     req.userId = id;
     req.isAuthenticated = true;
