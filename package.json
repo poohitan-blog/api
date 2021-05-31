@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "pm2-dev start app.js",
+    "start": "pm2 start app.js --name \"poohitan-com-api\" --watch --no-daemon",
     "lint": "./node_modules/eslint/bin/eslint.js \"**/*.js\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "pm2 deploy production"
