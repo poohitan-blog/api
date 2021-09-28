@@ -1,5 +1,7 @@
 const express = require('express');
 const HttpStatus = require('http-status-codes');
+const pdf = require('html-pdf');
+const wkhtmltopdf = require('wkhtmltopdf');
 
 const models = require('../models');
 const generateQueryFilter = require('../helpers/generate-query-filter');
@@ -39,6 +41,46 @@ router.get('/:slug', async (req, res, next) => {
     }
 
     return res.json(page.serialize());
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get('/:slug/pdf', async (req, res, next) => {
+  try {
+    const page = await models.page.findOne({ slug: req.params.slug });
+
+    console.log(page.title);
+
+    if (!page) {
+      return next({ status: HttpStatus.NOT_FOUND });
+    }
+
+    // res.set({
+    //   'Content-Type': 'application/pdf',
+    //   'Content-Disposition': `attachment; filename="poohitan.com/${page.slug}.pdf`,
+    // });
+
+    const htmlContent = `${page.body}<style>${page.customStylesProcessed} html { zoom: 0.6 }</style>`;
+
+    wkhtmltopdf('https://poohitan.com/cv')
+      .pipe(res);
+
+    // return pdf.create(htmlContent, {
+    //   format: 'A4',
+    //   border: {
+    //     top: '2cm',
+    //     left: '2cm',
+    //     right: '1cm',
+    //     bottom: '2cm',
+    //   },
+    // }).toBuffer((error, buffer) => {
+    //   if (error) {
+    //     console.log(error);
+    //   }
+
+    //   res.send(buffer);
+    // });
   } catch (error) {
     return next(error);
   }

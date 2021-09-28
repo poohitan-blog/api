@@ -43,7 +43,7 @@ async function processImage(file, filename, contentType, { analyze }) {
   const filePath = await upload(file, filename, contentType);
   const url = `${config.staticURL}/${filePath.replace(`${config.environment}/`, '')}`;
 
-  if (!analyze || config.environment !== 'production') {
+  if (!analyze) {
     return { url };
   }
 

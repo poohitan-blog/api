@@ -37,6 +37,7 @@
     "form-data": "^4.0.0",
     "geoip-lite": "^1.4.0",
     "got": "^11.8.2",
+    "html-pdf": "^3.0.1",
     "http-status-codes": "^1.4.0",
     "isbot": "^2.5.7",
     "jsonwebtoken": "^8.1.0",
@@ -60,6 +61,7 @@
     "transliteration.ua": "^1.0.0",
     "uuid": "^3.1.0",
     "uuid-validate": "0.0.3",
+    "wkhtmltopdf": "^0.4.0",
     "yargs": "^15.3.1"
   },
   "devDependencies": {
