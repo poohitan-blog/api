@@ -45,7 +45,7 @@
     "mongoose-delete": "^0.5.3",
     "mongoose-paginate": "^5.0.3",
     "nanoid": "^3.1.20",
-    "node-sass": "^5.0.0",
+    "node-sass": "^7.0.0",
     "parse-domain": "^2.0.0",
     "postcss": "^8.2.8",
     "random": "^2.1.1",
