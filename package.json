@@ -45,7 +45,7 @@
     "mongoose-delete": "^0.5.3",
     "mongoose-paginate": "^5.0.3",
     "nanoid": "^3.1.20",
-    "node-sass": "^7.0.0",
+    "node-sass": "^7.0.1",
     "parse-domain": "^2.0.0",
     "postcss": "^8.2.8",
     "random": "^2.1.1",
@@ -58,7 +58,7 @@
     "telegraf": "^3.36.0",
     "transliteration": "^2.2.0",
     "transliteration.ua": "^1.0.0",
-    "uuid": "^3.1.0",
+    "uuid": "^8.3.2",
     "uuid-validate": "0.0.3",
     "yargs": "^15.3.1"
   },

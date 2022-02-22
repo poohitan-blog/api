@@ -108,6 +108,10 @@ const config = {
 
 const environment = process.env.NODE_ENV;
 
+if (!environment) {
+  throw new Error('Missing NODE_ENV environment variable');
+}
+
 module.exports = {
   ...config,
   current: {
