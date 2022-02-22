@@ -1,14 +1,24 @@
 const Logger = require('logger');
+const argon2 = require('argon2');
 const connectToDB = require('../../utils/connect-to-db');
 const models = require('../../models');
 
 connectToDB()
-  .then(() => models.user.create({
-    login: 'poohitan',
-    email: 'poohitan@gmail.com',
-    password: '12345678',
-    role: 'admin',
-  }))
-  .then(() => Logger.success('Successfully created a user'))
-  .catch((error) => Logger.error(error))
-  .then(() => process.exit());
+  .then(async () => {
+    try {
+      const password = await argon2.hash('12345678');
+
+      await models.user.create({
+        login: 'poohitan',
+        email: 'poohitan@gmail.com',
+        password,
+        role: 'admin',
+      });
+
+      Logger.success('Successfully created a user');
+    } catch (error) {
+      Logger.error(error);
+    } finally {
+      process.exit();
+    }
+  });
