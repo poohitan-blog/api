@@ -54,7 +54,7 @@
     "rss": "^1.2.2",
     "sanitize-filename": "^1.6.1",
     "serialize-error": "^2.1.0",
-    "sharp": "^0.27.2",
+    "sharp": "^0.30.5",
     "telegraf": "^3.36.0",
     "transliteration": "^2.2.0",
     "transliteration.ua": "^1.0.0",
