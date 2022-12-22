@@ -39,7 +39,7 @@
     "got": "^11.8.2",
     "http-status-codes": "^1.4.0",
     "isbot": "^2.5.7",
-    "jsonwebtoken": "^8.1.0",
+    "jsonwebtoken": "^9.0.0",
     "logger": "git+https://github.com/poohitan-blog/logger.git",
     "mongoose": "^5.11.19",
     "mongoose-delete": "^0.5.3",
