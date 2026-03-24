@@ -41,10 +41,10 @@ router.post('/', requestLocator, speedLimiter, async (req, res, next) => {
     const token = await signToken({ id: user._id }, config.jwtSecret);
     const expires = add(new Date(), { weeks: 1 });
 
-    notifyAboutLoginAttempt({
-      geolocation: req.geolocation,
-      successfull: true,
-    });
+    // notifyAboutLoginAttempt({
+    //   geolocation: req.geolocation,
+    //   successfull: true,
+    // });
 
     return res
       .cookie('token', token, { expires, domain: config.cookiesDomain })

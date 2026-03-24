@@ -1,6 +1,16 @@
 const HttpStatus = require('http-status-codes');
 
+const config = require('../config').current;
+
 function protectRoute(req, res, next) {
+  if (!req.userId === config.poohitanId) {
+    return next({ status: HttpStatus.UNAUTHORIZED });
+  }
+
+  return next();
+}
+
+function protectRouteLess(req, res, next) {
   if (!req.isAuthenticated) {
     return next({ status: HttpStatus.UNAUTHORIZED });
   }
@@ -26,5 +36,6 @@ function excludeHiddenData(req, res, next) {
 
 module.exports = {
   protectRoute,
+  protectRouteLess,
   excludeHiddenData,
 };

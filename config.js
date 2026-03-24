@@ -56,6 +56,8 @@ const config = {
     staticURL: 'https://static.poohitan.com',
     cookiesDomain: '.poohitan.com',
 
+    poohitanUserId: '169341bd-cafa-4ab9-8b20-afb2b44e9b34',
+
     hotlinkingAllowedOrigins: [
       'poohitan.com',
       'new.poohitan.com',
@@ -64,6 +66,7 @@ const config = {
       'poohitan.com',
       'new.poohitan.com',
       'api.poohitan.com',
+      'bloody-eye.com',
     ],
 
     db: {
