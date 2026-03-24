@@ -32,8 +32,15 @@ async function getCaption(url) {
     : null;
 }
 
+async function toJpeg(buffer) {
+  return sharp(buffer)
+    .jpeg({ quality: 90 })
+    .toBuffer();
+}
+
 module.exports = {
   getMetadata,
   getAverageColor,
   getCaption,
+  toJpeg,
 };

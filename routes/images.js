@@ -39,8 +39,22 @@ async function upload(file, filename, contentType) {
   }
 }
 
-async function processImage(file, filename, contentType, { analyze }) {
-  const filePath = await upload(file, filename, contentType);
+async function processImage(file, filename, contentType, { analyze, convert }) {
+  let processedFile = file;
+  let processedContentType = contentType;
+  let processedFilename = filename;
+
+  if (convert === 'jpeg' && contentType !== 'image/jpeg') {
+    try {
+      processedFile = await ImageProcessing.toJpeg(file);
+      processedContentType = 'image/jpeg';
+      processedFilename = filename.replace(/\.\w+$/, '.jpg');
+    } catch (error) {
+      Logger.error(error);
+    }
+  }
+
+  const filePath = await upload(processedFile, processedFilename, processedContentType);
   const url = `${config.staticURL}/${filePath.replace(`${config.environment}/`, '')}`;
 
   if (!analyze || config.environment !== 'production') {
@@ -74,7 +88,7 @@ async function processImage(file, filename, contentType, { analyze }) {
   };
 }
 
-function manageUpload(req, { analyze = false } = {}) {
+function manageUpload(req, { analyze = false, convert = false } = {}) {
   return new Promise((resolve, reject) => {
     const busboy = new Busboy({ headers: req.headers });
     const uploads = [];
@@ -86,7 +100,7 @@ function manageUpload(req, { analyze = false } = {}) {
       file.on('end', () => {
         const buffer = Buffer.concat(chunks);
 
-        uploads.push(processImage(buffer, filename, mimeType, { analyze }));
+        uploads.push(processImage(buffer, filename, mimeType, { analyze, convert }));
       });
     });
 
@@ -107,10 +121,10 @@ function manageUpload(req, { analyze = false } = {}) {
   });
 }
 
-router.post('/', Guard.protectRoute, async (req, res, next) => {
+router.post('/', Guard.protectRouteLess, async (req, res, next) => {
   try {
-    const { analyze } = req.query;
-    const images = await manageUpload(req, { analyze });
+    const { analyze, convert = false } = req.query;
+    const images = await manageUpload(req, { analyze, convert });
 
     res.json(images);
   } catch (error) {
