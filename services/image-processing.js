@@ -24,12 +24,15 @@ async function getCaption(url) {
 
   const [caption = {}] = captions;
   const { text = '', confidence } = caption;
-  const [firstLetter, ...rest] = text.split('');
-  const result = firstLetter.toUpperCase() + rest.join('');
 
-  return confidence > MIN_ACCEPTABLE_RECOGNITION_CONFIDENCE
-    ? result
-    : null;
+  if (confidence < MIN_ACCEPTABLE_RECOGNITION_CONFIDENCE) {
+    return null;
+  }
+
+  const [firstLetter, ...rest] = text.split('');
+  const result = firstLetter && rest.length ? firstLetter.toUpperCase() + rest.join('') : '';
+
+  return result;
 }
 
 async function toJpeg(buffer) {
